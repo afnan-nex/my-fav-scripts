@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Drive Link Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f7f7f7;
+    }
+    h2 {
+      color: #333;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    input {
+      flex: 1;
+      font-size: 16px;
+      padding: 10px;
+    }
+    button {
+      font-size: 14px;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+    #output {
+      margin-top: 15px;
+      font-weight: bold;
+      color: #006600;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h2>Google Drive Link Converter</h2>
+
+  <div class="input-row">
+    <input type="text" id="inputLink" placeholder="https://drive.google.com/file/d/FILE_ID/view">
+    <button onclick="pasteFromClipboard()">Paste</button>
+    <button onclick="clearLink()">Clear</button>
+  </div>
+
+  <div>
+    <button onclick="convertLink(false)">Convert</button>
+    <button onclick="convertLink(true)">Convert & Copy</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script>
+    function extractFileId(url) {
+      const regex = /\/d\/([a-zA-Z0-9_-]+)\//;
+      const match = url.match(regex);
+      if (match && match[1]) {
+        return match[1];
+      }
+      try {
+        const params = new URL(url).searchParams;
+        return params.get("id");
+      } catch {
+        return null;
+      }
+    }
+
+    function convertLink(copyToClipboard) {
+      const input = document.getElementById("inputLink").value.trim();
+      const fileId = extractFileId(input);
+
+      if (!fileId) {
+        document.getElementById("output").innerText = "❌ Invalid Google Drive link!";
+        return;
+      }
+
+      const directLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      document.getElementById("output").innerHTML = `<a href="${directLink}" target="_blank">${directLink}</a>`;
+
+      if (copyToClipboard) {
+        navigator.clipboard.writeText(directLink).catch(() => {
+          document.getElementById("output").innerText = "⚠️ Could not copy to clipboard.";
+        });
+      }
+    }
+
+    function pasteFromClipboard() {
+      navigator.clipboard.readText().then(text => {
+        document.getElementById("inputLink").value = text;
+      }).catch(() => {
+        document.getElementById("output").innerText = "⚠️ Could not read clipboard.";
+      });
+    }
+
+    function clearLink() {
+      document.getElementById("inputLink").value = "";
+      document.getElementById("output").innerText = "";
+    }
+  </script>
+</body>
+</html>
