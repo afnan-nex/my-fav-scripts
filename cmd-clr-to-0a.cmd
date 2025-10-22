@@ -62,14 +62,14 @@ echo Setting additional console properties...
 REM Set font and window properties for better experience
 reg add "%GLOBAL_CONSOLE_REG_PATH%" /v "FaceName" /t REG_SZ /d "Consolas" /f >nul 2>&1
 reg add "%GLOBAL_CONSOLE_REG_PATH%" /v "FontFamily" /t REG_DWORD /d 0x00000036 /f >nul 2>&1
-reg add "%GLOBAL_CONSOLE_REG_PATH%" /v "FontSize" /t REG_DWORD /d 0x00100000 /f >nul 2>&1
+reg add "%GLOBAL_CONSOLE_REG_PATH%" /v "FontSize" /t REG_DWORD /d 0x000E0000 /f >nul 2>&1
 reg add "%GLOBAL_CONSOLE_REG_PATH%" /v "FontWeight" /t REG_DWORD /d 0x00000190 /f >nul 2>&1
 
 REM Apply same font settings to specific consoles
 for %%i in ("%CMD_REG_PATH%" "%POWERSHELL_REG_PATH%" "%POWERSHELL_ISE_REG_PATH%") do (
     reg add %%i /v "FaceName" /t REG_SZ /d "Consolas" /f >nul 2>&1
     reg add %%i /v "FontFamily" /t REG_DWORD /d 0x00000036 /f >nul 2>&1
-    reg add %%i /v "FontSize" /t REG_DWORD /d 0x00100000 /f >nul 2>&1
+    reg add %%i /v "FontSize" /t REG_DWORD /d 0x000E0000 /f >nul 2>&1
     reg add %%i /v "FontWeight" /t REG_DWORD /d 0x00000190 /f >nul 2>&1
 )
 
