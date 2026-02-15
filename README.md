@@ -12,5 +12,5 @@ pip install urllib.request pyperclip
 ```
 
 ```
-whatsapp-cli-windows-amd64.exe send --to 923463655864@s.whatsapp.net --message "Hello, this is a test message sent via AI"
+whatsapp-cli send --to 923254999625@s.whatsapp.net --message "Hello, this is a test message sent via AI"
 ```
