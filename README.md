@@ -10,3 +10,7 @@ irm "https://raw.githubusercontent.com/afnan-nex/my-fav-scripts/main/cmd-clr-to-
 ```
 pip install urllib.request pyperclip
 ```
+
+```
+whatsapp-cli-windows-amd64.exe send --to 923463655864@s.whatsapp.net --message "Hello, this is a test message sent via AI"
+```
