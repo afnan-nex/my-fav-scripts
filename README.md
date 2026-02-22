@@ -8,7 +8,7 @@ irm "https://raw.githubusercontent.com/afnan-nex/my-fav-scripts/main/cmd-clr-to-
 
 ## **My Python Commands**
 ```
-pip install requests pyperclip playwright beautifulsoup4 httpx pandas openpyxl schedule flet customtkinter pip pyautogui opencv-python pure-python-adb google-generativeai openai pypdf PyMuPDF
+pip install requests pyautogui pyperclip playwright beautifulsoup4 httpx pandas openpyxl schedule flet customtkinter pip pyautogui opencv-python pure-python-adb google-generativeai openai pypdf PyMuPDF
 ```
 
 ```
