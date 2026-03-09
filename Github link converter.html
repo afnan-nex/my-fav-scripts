@@ -24,20 +24,22 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             font-family: var(--sans);
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            padding: 16px;
             position: relative;
-            overflow-x: hidden;
         }
 
-        /* Ambient grid background */
         body::before {
             content: '';
             position: fixed;
@@ -46,48 +48,46 @@
                 linear-gradient(var(--border) 1px, transparent 1px),
                 linear-gradient(90deg, var(--border) 1px, transparent 1px);
             background-size: 40px 40px;
-            opacity: 0.25;
+            opacity: 0.2;
             pointer-events: none;
             mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
         }
 
-        /* Glow orbs */
         body::after {
             content: '';
             position: fixed;
-            width: 600px;
-            height: 600px;
-            top: -200px;
-            left: -200px;
+            width: 500px; height: 500px;
+            top: -200px; left: -200px;
             background: radial-gradient(circle, #3d4aff18 0%, transparent 70%);
             pointer-events: none;
         }
 
         .glow-orb {
             position: fixed;
-            width: 400px;
-            height: 400px;
-            bottom: -100px;
-            right: -100px;
+            width: 350px; height: 350px;
+            bottom: -100px; right: -100px;
             background: radial-gradient(circle, #00e5a015 0%, transparent 70%);
             pointer-events: none;
         }
 
         .wrapper {
             width: 100%;
-            max-width: 680px;
+            max-width: 660px;
             position: relative;
-            animation: fadeUp 0.6s ease both;
+            animation: fadeUp 0.5s ease both;
         }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(24px); }
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header */
+        /* Header — compact horizontal layout */
         .header {
-            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
         }
 
         .badge {
@@ -97,21 +97,21 @@
             background: var(--surface2);
             border: 1px solid var(--border);
             border-radius: 100px;
-            padding: 4px 12px 4px 8px;
-            font-size: 11px;
+            padding: 3px 10px 3px 7px;
+            font-size: 10px;
             font-family: var(--mono);
             color: var(--text-muted);
             letter-spacing: 0.05em;
-            margin-bottom: 16px;
+            white-space: nowrap;
         }
 
         .badge-dot {
-            width: 6px;
-            height: 6px;
+            width: 5px; height: 5px;
             border-radius: 50%;
             background: var(--accent2);
-            box-shadow: 0 0 6px var(--accent2);
+            box-shadow: 0 0 5px var(--accent2);
             animation: pulse 2s ease infinite;
+            flex-shrink: 0;
         }
 
         @keyframes pulse {
@@ -121,30 +121,29 @@
 
         h1 {
             font-family: var(--mono);
-            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-size: 1.4rem;
             font-weight: 700;
             color: var(--text);
-            line-height: 1.2;
+            line-height: 1;
             letter-spacing: -0.02em;
         }
 
-        h1 span {
-            color: var(--accent);
-        }
+        h1 span { color: var(--accent); }
 
         .subtitle {
-            margin-top: 8px;
             color: var(--text-muted);
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 300;
+            margin-left: auto;
+            white-space: nowrap;
         }
 
         /* Card */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px;
+            border-radius: 14px;
+            padding: 18px 20px;
             position: relative;
             overflow: hidden;
         }
@@ -153,22 +152,49 @@
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 16px;
+            border-radius: 14px;
             background: linear-gradient(135deg, var(--border-glow) 0%, transparent 50%);
             pointer-events: none;
         }
 
-        /* Field */
-        .field {
-            margin-bottom: 20px;
+        /* Example pill — single line */
+        .example-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 7px;
+            padding: 8px 12px;
+            margin-bottom: 14px;
+            font-size: 11px;
+            font-family: var(--mono);
+            flex-wrap: wrap;
         }
+
+        .example-pill .ex-label {
+            color: var(--accent);
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .example-pill .arrow { color: var(--text-dim); }
+
+        .example-pill code { color: var(--text-muted); }
+        .example-pill code.out { color: var(--accent2); }
+
+        /* Field */
+        .field { margin-bottom: 12px; }
 
         .field-label {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 12px;
+            gap: 6px;
+            margin-bottom: 5px;
+            font-size: 10px;
             font-family: var(--mono);
             color: var(--text-muted);
             letter-spacing: 0.08em;
@@ -176,35 +202,31 @@
         }
 
         .field-label .tag {
-            font-size: 10px;
+            font-size: 9px;
             background: var(--surface2);
             border: 1px solid var(--border);
-            padding: 1px 6px;
-            border-radius: 4px;
+            padding: 1px 5px;
+            border-radius: 3px;
             color: var(--text-dim);
         }
 
-        input[type="text"],
-        select,
-        textarea {
+        input[type="text"], select, textarea {
             width: 100%;
             background: var(--surface2);
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 8px;
             color: var(--text);
             font-family: var(--mono);
-            font-size: 13px;
-            padding: 12px 14px;
+            font-size: 12px;
+            padding: 8px 11px;
             transition: border-color 0.2s, box-shadow 0.2s;
             appearance: none;
             outline: none;
         }
 
-        input[type="text"]:focus,
-        select:focus,
-        textarea:focus {
+        input[type="text"]:focus, select:focus, textarea:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px #3d4aff20;
+            box-shadow: 0 0 0 2px #3d4aff18;
         }
 
         input::placeholder { color: var(--text-dim); }
@@ -212,43 +234,47 @@
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b85' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 36px;
+            background-position: right 10px center;
+            padding-right: 30px;
             cursor: pointer;
         }
 
-        select option {
-            background: var(--surface2);
-            color: var(--text);
-        }
+        select option { background: var(--surface2); color: var(--text); }
 
-        /* Row layout */
         .row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            gap: 12px;
         }
 
-        @media (max-width: 520px) {
-            .row { grid-template-columns: 1fr; }
+        /* Main input + options row */
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 160px 140px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        /* Convert button */
+        @media (max-width: 540px) {
+            .top-row { grid-template-columns: 1fr; }
+        }
+
         .btn-convert {
             width: 100%;
-            padding: 14px;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             background: var(--accent);
             color: #fff;
             font-family: var(--mono);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             letter-spacing: 0.04em;
             cursor: pointer;
             position: relative;
             overflow: hidden;
             transition: transform 0.15s, box-shadow 0.15s;
+            margin-bottom: 14px;
         }
 
         .btn-convert::before {
@@ -259,65 +285,49 @@
         }
 
         .btn-convert:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px #3d4aff50;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px #3d4aff45;
         }
 
-        .btn-convert:active {
-            transform: translateY(0);
-        }
+        .btn-convert:active { transform: translateY(0); }
 
-        /* Divider */
-        .divider {
-            display: flex;
-            align-items: center;
+        /* Outputs — side by side */
+        .outputs-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin: 28px 0;
         }
 
-        .divider-line {
-            flex: 1;
-            height: 1px;
-            background: var(--border);
+        @media (max-width: 480px) {
+            .outputs-row { grid-template-columns: 1fr; }
         }
 
-        .divider-label {
-            font-size: 11px;
-            font-family: var(--mono);
-            color: var(--text-dim);
-            letter-spacing: 0.1em;
-        }
-
-        /* Output */
-        .output-block {
-            margin-bottom: 16px;
-        }
+        .output-block {}
 
         .output-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         textarea {
-            resize: vertical;
-            min-height: 72px;
-            line-height: 1.6;
+            resize: none;
+            height: 52px;
+            line-height: 1.5;
         }
 
-        /* Copy button */
         .btn-copy {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-muted);
             font-family: var(--mono);
-            font-size: 11px;
-            padding: 5px 10px;
-            border-radius: 6px;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 5px;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
@@ -335,71 +345,37 @@
             background: #00e5a015;
         }
 
-        /* Example pill */
-        .example-pill {
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--accent);
-            border-radius: 8px;
-            padding: 14px 16px;
-            margin-bottom: 20px;
-            font-size: 12px;
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
         }
 
-        .example-pill .ex-label {
+        .divider-line { flex: 1; height: 1px; background: var(--border); }
+
+        .divider-label {
+            font-size: 10px;
             font-family: var(--mono);
-            font-size: 10px;
-            color: var(--accent);
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .example-pill .ex-row {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .example-pill .ex-item {
-            display: flex;
-            gap: 8px;
-            align-items: baseline;
-        }
-
-        .example-pill .ex-type {
-            font-size: 10px;
             color: var(--text-dim);
-            font-family: var(--mono);
-            min-width: 32px;
-            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
-        .example-pill code {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--text-muted);
-            word-break: break-all;
-        }
-
-        .example-pill code.out {
-            color: var(--accent2);
-        }
-
-        /* Error/success state */
+        /* Status bar */
         .status-bar {
             display: none;
             align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            animation: slideIn 0.3s ease;
+            gap: 6px;
+            padding: 7px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            animation: slideIn 0.25s ease;
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-8px); }
+            from { opacity: 0; transform: translateY(-6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -417,65 +393,54 @@
             color: var(--accent2);
         }
 
-        /* History */
-        .history-section {
-            margin-top: 28px;
-        }
+        /* History — horizontal scrolling strip */
+        .history-section { margin-top: 10px; }
 
         .history-title {
-            font-size: 11px;
+            font-size: 10px;
             font-family: var(--mono);
             color: var(--text-dim);
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .history-list {
             display: flex;
-            flex-direction: column;
             gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
         }
+
+        .history-list::-webkit-scrollbar { height: 3px; }
+        .history-list::-webkit-scrollbar-track { background: transparent; }
+        .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
         .history-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
+            gap: 6px;
+            padding: 5px 10px;
             background: var(--surface2);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: border-color 0.2s;
-            font-size: 12px;
+            font-size: 11px;
             font-family: var(--mono);
             color: var(--text-muted);
-            text-align: left;
-            width: 100%;
-        }
-
-        .history-item:hover {
-            border-color: var(--accent);
-            color: var(--text);
-        }
-
-        .history-item .hi-repo {
-            color: var(--accent);
+            white-space: nowrap;
             flex-shrink: 0;
         }
 
-        .history-item .hi-path {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
+        .history-item:hover { border-color: var(--accent); color: var(--text); }
+        .history-item .hi-repo { color: var(--accent); }
 
         .history-empty {
-            font-size: 12px;
+            font-size: 11px;
             font-family: var(--mono);
             color: var(--text-dim);
-            text-align: center;
-            padding: 16px;
+            padding: 5px 0;
         }
     </style>
 </head>
@@ -483,55 +448,38 @@
     <div class="glow-orb"></div>
 
     <div class="wrapper">
+        <!-- Header -->
         <div class="header">
             <div class="badge">
                 <span class="badge-dot"></span>
-                github → pages converter
+                github → pages
             </div>
             <h1>Link<span>.</span>Convert</h1>
-            <p class="subtitle">Transform GitHub blob URLs into live GitHub Pages links</p>
+            <p class="subtitle">Transform blob URLs into GitHub Pages links</p>
         </div>
 
         <div class="card">
-            <!-- Status bar -->
             <div class="status-bar" id="statusBar"></div>
 
             <!-- Example -->
             <div class="example-pill">
-                <div class="ex-label">→ Example transform</div>
-                <div class="ex-row">
-                    <div class="ex-item">
-                        <span class="ex-type">in</span>
-                        <code>github.com/user/repo/blob/main/file.html</code>
-                    </div>
-                    <div class="ex-item">
-                        <span class="ex-type">out</span>
-                        <code class="out">user.github.io/repo/file.html</code>
-                    </div>
-                </div>
+                <span class="ex-label">example</span>
+                <code>github.com/user/repo/blob/main/file.html</code>
+                <span class="arrow">→</span>
+                <code class="out">user.github.io/repo/file.html</code>
             </div>
 
-            <!-- Input -->
-            <div class="field">
-                <div class="field-label">
-                    GitHub Blob URL
-                    <span class="tag">required</span>
+            <!-- Top row: URL + link text + open-in -->
+            <div class="top-row">
+                <div class="field" style="margin:0">
+                    <div class="field-label">GitHub Blob URL <span class="tag">required</span></div>
+                    <input type="text" id="githubUrl" placeholder="https://github.com/user/repo/blob/main/file.html" />
                 </div>
-                <input
-                    type="text"
-                    id="githubUrl"
-                    placeholder=""
-                    value=""
-                />
-            </div>
-
-            <!-- Options row -->
-            <div class="row">
-                <div class="field">
+                <div class="field" style="margin:0">
                     <div class="field-label">Link Text</div>
-                    <input type="text" id="linkText" placeholder="Click here" value="" />
+                    <input type="text" id="linkText" placeholder="Click here" />
                 </div>
-                <div class="field">
+                <div class="field" style="margin:0">
                     <div class="field-label">Open In</div>
                     <select id="targetAttr">
                         <option value="_blank">New Tab</option>
@@ -542,37 +490,37 @@
                 </div>
             </div>
 
-            <button class="btn-convert" onclick="convertLink()">
-                Convert →
-            </button>
+            <button class="btn-convert" onclick="convertLink()">Convert →</button>
 
-            <!-- Outputs -->
+            <!-- Divider -->
             <div class="divider">
                 <div class="divider-line"></div>
                 <span class="divider-label">Output</span>
                 <div class="divider-line"></div>
             </div>
 
-            <div class="output-block">
-                <div class="output-header">
-                    <div class="field-label" style="margin:0">Pages URL</div>
-                    <button class="btn-copy" onclick="copyTo('pagesUrl', this)">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                        Copy
-                    </button>
+            <!-- Outputs side by side -->
+            <div class="outputs-row">
+                <div class="output-block">
+                    <div class="output-header">
+                        <div class="field-label" style="margin:0">Pages URL</div>
+                        <button class="btn-copy" onclick="copyTo('pagesUrl', this)">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                            Copy
+                        </button>
+                    </div>
+                    <textarea id="pagesUrl" readonly placeholder="https://user.github.io/repo/file.html"></textarea>
                 </div>
-                <textarea id="pagesUrl" readonly placeholder="https://user.github.io/repo/file.html"></textarea>
-            </div>
-
-            <div class="output-block">
-                <div class="output-header">
-                    <div class="field-label" style="margin:0">HTML Anchor</div>
-                    <button class="btn-copy" onclick="copyTo('htmlCode', this)">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                        Copy
-                    </button>
+                <div class="output-block">
+                    <div class="output-header">
+                        <div class="field-label" style="margin:0">HTML Anchor</div>
+                        <button class="btn-copy" onclick="copyTo('htmlCode', this)">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                            Copy
+                        </button>
+                    </div>
+                    <textarea id="htmlCode" readonly placeholder='<a href="..." target="_blank">Link text</a>'></textarea>
                 </div>
-                <textarea id="htmlCode" readonly placeholder='<a href="..." target="_blank">Link text</a>'></textarea>
             </div>
         </div>
 
@@ -592,7 +540,7 @@
             const bar = document.getElementById('statusBar');
             bar.className = 'status-bar ' + type;
             bar.innerHTML = (type === 'error' ? '✗ ' : '✓ ') + msg;
-            setTimeout(() => { bar.className = 'status-bar'; }, 4000);
+            setTimeout(() => { bar.className = 'status-bar'; }, 3500);
         }
 
         function convertLink() {
@@ -600,10 +548,7 @@
             const linkText = document.getElementById('linkText').value.trim() || 'Link';
             const targetAttr = document.getElementById('targetAttr').value;
 
-            if (!githubUrl) {
-                showStatus('Please enter a GitHub URL.', 'error');
-                return;
-            }
+            if (!githubUrl) { showStatus('Please enter a GitHub URL.', 'error'); return; }
             if (!githubUrl.includes('github.com') || !githubUrl.includes('/blob/')) {
                 showStatus('Must be a GitHub blob URL — e.g. github.com/user/repo/blob/main/file', 'error');
                 return;
@@ -624,14 +569,12 @@
 
                 document.getElementById('pagesUrl').value = pagesUrl;
                 document.getElementById('htmlCode').value = htmlCode;
-
                 showStatus('Converted successfully!', 'success');
 
-                // Add to history
                 const entry = { username, repo, filePath, pagesUrl };
                 if (!history.find(h => h.pagesUrl === pagesUrl)) {
                     history.unshift(entry);
-                    if (history.length > 5) history.pop();
+                    if (history.length > 8) history.pop();
                     renderHistory();
                 }
             } catch (err) {
@@ -641,21 +584,20 @@
 
         function renderHistory() {
             const list = document.getElementById('historyList');
-            if (history.length === 0) {
+            if (!history.length) {
                 list.innerHTML = '<div class="history-empty">No conversions yet</div>';
                 return;
             }
             list.innerHTML = history.map((h, i) => `
                 <button class="history-item" onclick="loadHistory(${i})">
                     <span class="hi-repo">${h.username}/${h.repo}</span>
-                    <span class="hi-path">/${h.filePath}</span>
+                    <span>/${h.filePath}</span>
                 </button>
             `).join('');
         }
 
         function loadHistory(i) {
             const h = history[i];
-            // Reconstruct a blob URL
             document.getElementById('githubUrl').value =
                 `https://github.com/${h.username}/${h.repo}/blob/main/${h.filePath}`;
             convertLink();
@@ -664,28 +606,19 @@
         async function copyTo(id, btn) {
             const val = document.getElementById(id).value;
             if (!val) { showStatus('Nothing to copy — convert first.', 'error'); return; }
-            try {
-                await navigator.clipboard.writeText(val);
-            } catch {
-                const el = document.getElementById(id);
-                el.select();
-                document.execCommand('copy');
-            }
+            try { await navigator.clipboard.writeText(val); }
+            catch { const el = document.getElementById(id); el.select(); document.execCommand('copy'); }
             btn.classList.add('copied');
-            btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+            btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
             setTimeout(() => {
                 btn.classList.remove('copied');
-                btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
+                btn.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
             }, 2000);
         }
 
-        // Enter key support
         document.getElementById('githubUrl').addEventListener('keydown', e => {
             if (e.key === 'Enter') convertLink();
         });
-
-        // Auto-run on load
-        window.addEventListener('load', convertLink);
     </script>
 </body>
 </html>
