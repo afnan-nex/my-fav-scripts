@@ -1,3 +1,8 @@
+## **Github Link Converter**
+```
+<a href="https://afnan-nex.github.io/my-fav-scripts/Github%20link%20converter.html" target="_blank" rel="noopener noreferrer">Git Hub Link Converter</a>
+```
+
 ## **Change cmd color to 0a 🟩**
 ```
 irm "https://raw.githubusercontent.com/afnan-nex/my-fav-scripts/main/cmd-clr-to-0a.cmd" -OutFile cmd-clr-to-0a.cmd; Start-Process cmd-clr-to-0a.cmd
