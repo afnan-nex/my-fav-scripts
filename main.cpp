@@ -73,9 +73,20 @@ public:
 
 int main() {
     BatchRenamer renamer;
-    std::string path = "C:/Users/Admin/Desktop/Test_Dir_For_oop_Project"; // Ensure this folder exists!
+    std::string path;
 
     std::cout << "--- Batch Renamer Standardizer ---\n";
+    std::cout << "Enter the folder path: ";
+    std::getline(std::cin, path);
+
+    // Convert forward slashes to backslashes for Windows paths
+    for (char& c : path) {
+        if (c == '/') {
+            c = '\\';
+        }
+    }
+
+    std::cout << "Using path: " << path << "\n\n";
 
     // Choose your strategy (Polymorphism)
     NamingPattern* myStrategy = new SequencePattern("Vacation_Photos");
