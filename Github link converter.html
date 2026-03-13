@@ -6,19 +6,47 @@
     <title>GitHub Link Converter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* 
+           THEME DEFINITIONS 
+           1. Default (Light) is defined in :root.
+           2. Dark theme is applied via [data-theme="dark"].
+           3. System preference is checked in JS to set the initial theme.
+        */
+
         :root {
-            /* Palette from Document */
+            /* Palette - Light Mode */
             --accent: #29C5F6;         /* Electric Cyan */
             --text: #1A1A1A;           /* Deep Charcoal */
             --text-muted: #71717A;     /* Slate Gray */
             --bg: #FFFFFF;             /* Pure White */
             --surface: #F4F4F5;        /* Off-White / Pale Gray */
-            --border: #E4E4E7;         /* Derived border for visibility */
+            --border: #E4E4E7;
             --success: #10B981;        /* Emerald Green */
-            --error: #F87171;          /* Soft Red for errors (standard pairing) */
+            --error: #EF4444;
             
-            /* Typography */
-            --font: 'Inter', sans-serif;
+            /* Component specifics */
+            --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            --input-bg: #FFFFFF;
+            --input-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            --btn-shadow: 0 8px 20px rgba(41, 197, 246, 0.25);
+            --btn-hover-shadow: 0 12px 28px rgba(41, 197, 246, 0.35);
+        }
+
+        [data-theme="dark"] {
+            /* Palette - Dark Mode */
+            --accent: #29C5F6;
+            --text: #FAFAFA;           /* Light text */
+            --text-muted: #A1A1AA;     /* Lighter gray */
+            --bg: #09090B;             /* Deep Black */
+            --surface: #18181B;        /* Dark Surface */
+            --border: #27272A;
+            
+            /* Component specifics for dark mode */
+            --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            --input-bg: #0F0F11;       /* Slightly darker than surface */
+            --input-shadow: none;
+            --btn-shadow: 0 8px 20px rgba(41, 197, 246, 0.2);
+            --btn-hover-shadow: 0 12px 28px rgba(41, 197, 246, 0.3);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,10 +54,11 @@
         html, body {
             height: 100%;
             overflow: auto;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         body {
-            font-family: var(--font);
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
             display: flex;
@@ -39,7 +68,7 @@
             position: relative;
         }
 
-        /* Wrapper - Centered with max width for readability */
+        /* Wrapper */
         .wrapper {
             width: 100%;
             max-width: 800px;
@@ -52,7 +81,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header - Centered Alignment as per doc */
+        /* Header */
         .header {
             display: flex;
             flex-direction: column;
@@ -60,13 +89,22 @@
             text-align: center;
             gap: 12px;
             margin-bottom: 32px;
+            position: relative;
+        }
+
+        .header-actions {
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: flex;
+            gap: 8px;
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(41, 197, 246, 0.1); /* Light cyan bg */
+            background: rgba(41, 197, 246, 0.1);
             color: var(--accent);
             border-radius: 100px;
             padding: 6px 16px;
@@ -74,6 +112,7 @@
             font-weight: 600;
             letter-spacing: 0.05em;
             text-transform: uppercase;
+            transition: background 0.3s;
         }
 
         .badge-dot {
@@ -95,6 +134,7 @@
             color: var(--text);
             line-height: 1.1;
             letter-spacing: -0.03em;
+            transition: color 0.3s;
         }
 
         h1 span { color: var(--accent); }
@@ -104,9 +144,42 @@
             font-size: 16px;
             font-weight: 400;
             max-width: 400px;
+            transition: color 0.3s;
         }
 
-        /* Card - Neomorphism-Lite / Soft Shadows */
+        /* Theme Toggle Button */
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--text-muted);
+        }
+
+        .theme-toggle:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            transform: rotate(15deg);
+        }
+
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Hide one icon based on theme */
+        .icon-moon { display: none; }
+        .icon-sun { display: block; }
+        [data-theme="dark"] .icon-moon { display: block; }
+        [data-theme="dark"] .icon-sun { display: none; }
+
+        /* Card */
         .card {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -114,8 +187,8 @@
             padding: 32px;
             position: relative;
             overflow: hidden;
-            /* Soft shadow for floating effect */
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08); 
+            box-shadow: var(--card-shadow);
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
 
         /* Example pill */
@@ -130,25 +203,26 @@
             padding: 16px;
             margin-bottom: 28px;
             font-size: 13px;
-            font-family: monospace; /* Keeping monospace for URLs */
+            font-family: monospace;
             color: var(--text-muted);
+            transition: background 0.3s;
         }
 
         .example-pill .ex-label {
             color: var(--text);
-            font-family: var(--font);
+            font-family: 'Inter', sans-serif;
             font-size: 11px;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             font-weight: 600;
-            background: #fff;
+            background: var(--bg);
             padding: 2px 8px;
             border-radius: 4px;
             border: 1px solid var(--border);
+            transition: background 0.3s, border-color 0.3s;
         }
 
         .example-pill .arrow { color: var(--accent); font-weight: bold; }
-
         .example-pill code.out { color: var(--accent); font-weight: 600; }
 
         /* Field */
@@ -164,6 +238,7 @@
             color: var(--text-muted);
             letter-spacing: 0.05em;
             text-transform: uppercase;
+            transition: color 0.3s;
         }
 
         .field-label .tag {
@@ -176,20 +251,19 @@
             letter-spacing: 0;
         }
 
-        /* Inputs - Clean, Modern */
+        /* Inputs */
         input[type="text"], select, textarea {
             width: 100%;
-            background: #fff;
+            background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             color: var(--text);
-            font-family: var(--font);
+            font-family: 'Inter', sans-serif;
             font-size: 15px;
             padding: 14px 18px;
             transition: all 0.2s ease;
             outline: none;
-            /* Slight inner shadow for depth */
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); 
+            box-shadow: var(--input-shadow);
         }
 
         input[type="text"]:focus, select:focus, textarea:focus {
@@ -197,7 +271,7 @@
             box-shadow: 0 0 0 3px rgba(41, 197, 246, 0.15);
         }
 
-        input::placeholder { color: #A1A1AA; }
+        input::placeholder { color: var(--text-muted); opacity: 0.6; }
 
         select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -207,7 +281,7 @@
             appearance: none;
         }
 
-        /* Main input grid */
+        /* Layout Grid */
         .top-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr;
@@ -217,10 +291,10 @@
 
         @media (max-width: 768px) {
             .top-row { grid-template-columns: 1fr; }
-            .subtitle { display: none; }
+            .header-actions { position: static; margin-bottom: 12px; }
         }
 
-        /* Primary Button */
+        /* Button */
         .btn-convert {
             width: 100%;
             padding: 16px;
@@ -228,19 +302,19 @@
             border-radius: 14px;
             background: var(--accent);
             color: #fff;
-            font-family: var(--font);
+            font-family: 'Inter', sans-serif;
             font-size: 15px;
             font-weight: 600;
             letter-spacing: 0.02em;
             cursor: pointer;
             transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
             margin-bottom: 28px;
-            box-shadow: 0 8px 20px rgba(41, 197, 246, 0.25);
+            box-shadow: var(--btn-shadow);
         }
 
         .btn-convert:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 28px rgba(41, 197, 246, 0.35);
+            box-shadow: var(--btn-hover-shadow);
             filter: brightness(1.05);
         }
 
@@ -279,7 +353,7 @@
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-muted);
-            font-family: var(--font);
+            font-family: 'Inter', sans-serif;
             font-size: 11px;
             font-weight: 600;
             padding: 6px 12px;
@@ -312,7 +386,6 @@
 
         .divider-label {
             font-size: 11px;
-            font-family: var(--font);
             color: var(--text-muted);
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -339,9 +412,9 @@
 
         .status-bar.error {
             display: flex;
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid rgba(248, 113, 113, 0.2);
-            color: #D9534F;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #EF4444;
         }
 
         .status-bar.success {
@@ -356,7 +429,6 @@
 
         .history-title {
             font-size: 11px;
-            font-family: var(--font);
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -369,7 +441,7 @@
             gap: 10px;
             overflow-x: auto;
             padding-bottom: 8px;
-            justify-content: center; /* Center items */
+            justify-content: center;
         }
 
         .history-list::-webkit-scrollbar { height: 4px; }
@@ -381,13 +453,13 @@
             align-items: center;
             gap: 8px;
             padding: 8px 16px;
-            background: #fff;
+            background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.2s;
             font-size: 12px;
-            font-family: var(--font);
+            font-family: 'Inter', sans-serif;
             color: var(--text-muted);
             white-space: nowrap;
             flex-shrink: 0;
@@ -403,9 +475,9 @@
 
         .history-empty {
             font-size: 13px;
-            font-family: var(--font);
-            color: #A1A1AA;
+            color: var(--text-muted);
             padding: 8px 0;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -413,9 +485,30 @@
     <div class="wrapper">
         <!-- Header -->
         <div class="header">
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <!-- Sun Icon -->
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+            
             <div class="badge">
                 <span class="badge-dot"></span>
-                GitHub Tool
+                GitHub Tool By AFNAN
             </div>
             <h1>Link<span>.</span>Convert</h1>
             <p class="subtitle">Transform blob URLs into GitHub Pages links instantly.</p>
@@ -432,7 +525,7 @@
                 <code class="out">...github.io/file.html</code>
             </div>
 
-            <!-- Top row: URL + link text + open-in -->
+            <!-- Input Row -->
             <div class="top-row">
                 <div class="field" style="margin:0">
                     <div class="field-label">GitHub Blob URL <span class="tag">Required</span></div>
@@ -455,14 +548,13 @@
 
             <button class="btn-convert" onclick="convertLink()">Convert Link</button>
 
-            <!-- Divider -->
             <div class="divider">
                 <div class="divider-line"></div>
                 <span class="divider-label">Output</span>
                 <div class="divider-line"></div>
             </div>
 
-            <!-- Outputs side by side -->
+            <!-- Outputs -->
             <div class="outputs-row">
                 <div class="output-block">
                     <div class="output-header">
@@ -497,6 +589,46 @@
     </div>
 
     <script>
+        /* 
+           THEME LOGIC 
+           1. Check Local Storage for explicit preference.
+           2. If none, check System Preference (prefers-color-scheme).
+           3. Apply theme.
+        */
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
+            }
+        }
+
+        // Listen for system changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!localStorage.getItem('theme')) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+
+        // Toggle Button Logic
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+
+        initTheme(); // Initialize on load
+
+
+        /* CORE APP LOGIC */
         const history = [];
 
         function showStatus(msg, type) {
