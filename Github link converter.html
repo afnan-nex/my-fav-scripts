@@ -4,81 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GitHub Link Converter</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0f;
-            --surface: #111118;
-            --surface2: #1a1a24;
-            --border: #2a2a3a;
-            --border-glow: #3d4aff55;
-            --accent: #3d4aff;
-            --accent2: #00e5a0;
-            --accent3: #ff4d6d;
-            --text: #e8e8f0;
-            --text-muted: #6b6b85;
-            --text-dim: #3a3a55;
-            --mono: 'Space Mono', monospace;
-            --sans: 'DM Sans', sans-serif;
+            /* Palette from Document */
+            --accent: #29C5F6;         /* Electric Cyan */
+            --text: #1A1A1A;           /* Deep Charcoal */
+            --text-muted: #71717A;     /* Slate Gray */
+            --bg: #FFFFFF;             /* Pure White */
+            --surface: #F4F4F5;        /* Off-White / Pale Gray */
+            --border: #E4E4E7;         /* Derived border for visibility */
+            --success: #10B981;        /* Emerald Green */
+            --error: #F87171;          /* Soft Red for errors (standard pairing) */
+            
+            /* Typography */
+            --font: 'Inter', sans-serif;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         html, body {
             height: 100%;
-            /* Changed from hidden to auto to allow scrolling if content overflows on small screens */
-            overflow: auto; 
+            overflow: auto;
         }
 
         body {
-            font-family: var(--sans);
+            font-family: var(--font);
             background: var(--bg);
             color: var(--text);
             display: flex;
-            align-items: flex-start; /* Align to top */
+            align-items: flex-start;
             justify-content: center;
-            padding: 32px; /* Increased padding */
+            padding: 48px 24px;
             position: relative;
-            min-height: 100vh;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 50px 50px; /* Larger grid */
-            opacity: 0.15;
-            pointer-events: none;
-            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            width: 600px; height: 600px;
-            top: -200px; left: -200px;
-            background: radial-gradient(circle, #3d4aff18 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .glow-orb {
-            position: fixed;
-            width: 500px; height: 500px;
-            bottom: -150px; right: -150px;
-            background: radial-gradient(circle, #00e5a018 0%, transparent 70%);
-            pointer-events: none;
-        }
-
+        /* Wrapper - Centered with max width for readability */
         .wrapper {
             width: 100%;
-            /* Increased max-width significantly */
-            max-width: 960px; 
+            max-width: 800px;
             position: relative;
-            animation: fadeUp 0.5s ease both;
-            margin: 20px 0;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
         @keyframes fadeUp {
@@ -86,50 +52,48 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header */
+        /* Header - Centered Alignment as per doc */
         .header {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
+            text-align: center;
+            gap: 12px;
+            margin-bottom: 32px;
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
+            background: rgba(41, 197, 246, 0.1); /* Light cyan bg */
+            color: var(--accent);
             border-radius: 100px;
-            padding: 6px 14px 6px 10px;
-            font-size: 12px; /* Increased font */
-            font-family: var(--mono);
-            color: var(--text-muted);
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
             letter-spacing: 0.05em;
-            white-space: nowrap;
+            text-transform: uppercase;
         }
 
         .badge-dot {
             width: 6px; height: 6px;
             border-radius: 50%;
-            background: var(--accent2);
-            box-shadow: 0 0 8px var(--accent2);
+            background: var(--accent);
+            box-shadow: 0 0 0 2px rgba(41, 197, 246, 0.3);
             animation: pulse 2s ease infinite;
-            flex-shrink: 0;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.9); }
         }
 
         h1 {
-            font-family: var(--mono);
-            /* Increased title size */
-            font-size: 2rem; 
+            font-size: 2.5rem;
             font-weight: 700;
             color: var(--text);
-            line-height: 1;
+            line-height: 1.1;
             letter-spacing: -0.03em;
         }
 
@@ -137,63 +101,58 @@
 
         .subtitle {
             color: var(--text-muted);
-            font-size: 14px; /* Increased size */
-            font-weight: 300;
-            margin-left: auto;
-            white-space: nowrap;
+            font-size: 16px;
+            font-weight: 400;
+            max-width: 400px;
         }
 
-        /* Card */
+        /* Card - Neomorphism-Lite / Soft Shadows */
         .card {
-            background: var(--surface);
+            background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 28px; /* Increased padding */
+            border-radius: 24px;
+            padding: 32px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 16px;
-            background: linear-gradient(135deg, var(--border-glow) 0%, transparent 50%);
-            pointer-events: none;
+            /* Soft shadow for floating effect */
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08); 
         }
 
         /* Example pill */
         .example-pill {
             display: flex;
             align-items: center;
-            gap: 12px;
-            background: var(--surface2);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--accent);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
-            font-size: 13px; /* Increased font */
-            font-family: var(--mono);
+            justify-content: center;
             flex-wrap: wrap;
+            gap: 12px;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 28px;
+            font-size: 13px;
+            font-family: monospace; /* Keeping monospace for URLs */
+            color: var(--text-muted);
         }
 
         .example-pill .ex-label {
-            color: var(--accent);
+            color: var(--text);
+            font-family: var(--font);
             font-size: 11px;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            font-weight: 700;
+            font-weight: 600;
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
         }
 
-        .example-pill .arrow { color: var(--text-dim); font-size: 16px; }
+        .example-pill .arrow { color: var(--accent); font-weight: bold; }
 
-        .example-pill code { color: var(--text-muted); }
-        .example-pill code.out { color: var(--accent2); }
+        .example-pill code.out { color: var(--accent); font-weight: 600; }
 
         /* Field */
-        .field { margin-bottom: 16px; }
+        .field { margin-bottom: 20px; }
 
         .field-label {
             display: flex;
@@ -201,9 +160,9 @@
             gap: 8px;
             margin-bottom: 8px;
             font-size: 12px;
-            font-family: var(--mono);
+            font-weight: 600;
             color: var(--text-muted);
-            letter-spacing: 0.08em;
+            letter-spacing: 0.05em;
             text-transform: uppercase;
         }
 
@@ -213,49 +172,47 @@
             color: white;
             padding: 2px 6px;
             border-radius: 4px;
-            color: #fff;
-            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0;
         }
 
+        /* Inputs - Clean, Modern */
         input[type="text"], select, textarea {
             width: 100%;
-            background: var(--surface2);
+            background: #fff;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             color: var(--text);
-            font-family: var(--mono);
-            /* Increased font size for inputs */
-            font-size: 15px; 
-            padding: 14px 16px;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            appearance: none;
+            font-family: var(--font);
+            font-size: 15px;
+            padding: 14px 18px;
+            transition: all 0.2s ease;
             outline: none;
+            /* Slight inner shadow for depth */
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02); 
         }
 
         input[type="text"]:focus, select:focus, textarea:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px #3d4aff20;
+            box-shadow: 0 0 0 3px rgba(41, 197, 246, 0.15);
         }
 
-        input::placeholder { color: var(--text-dim); }
+        input::placeholder { color: #A1A1AA; }
 
         select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b85' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 40px;
+            background-position: right 16px center;
             cursor: pointer;
+            appearance: none;
         }
 
-        select option { background: var(--surface2); color: var(--text); }
-
-        /* Main input + options row */
+        /* Main input grid */
         .top-row {
             display: grid;
-            /* Adjusted column widths for better balance */
             grid-template-columns: 2fr 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin-bottom: 24px;
         }
 
         @media (max-width: 768px) {
@@ -263,34 +220,28 @@
             .subtitle { display: none; }
         }
 
+        /* Primary Button */
         .btn-convert {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 14px;
             background: var(--accent);
             color: #fff;
-            font-family: var(--mono);
-            font-size: 15px; /* Increased font */
-            font-weight: 700;
-            letter-spacing: 0.05em;
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.15s, box-shadow 0.15s;
-            margin-bottom: 24px;
-        }
-
-        .btn-convert::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, #ffffff25 0%, transparent 60%);
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 20px rgba(41, 197, 246, 0.25);
         }
 
         .btn-convert:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px #3d4aff55;
+            box-shadow: 0 12px 28px rgba(41, 197, 246, 0.35);
+            filter: brightness(1.05);
         }
 
         .btn-convert:active { transform: translateY(0); }
@@ -314,9 +265,11 @@
         }
 
         textarea {
-            resize: vertical; /* Allow user to resize vertically */
-            height: 70px; /* Taller default height */
+            resize: vertical;
+            height: 80px;
             line-height: 1.5;
+            font-family: monospace;
+            font-size: 13px;
         }
 
         .btn-copy {
@@ -326,43 +279,44 @@
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-muted);
-            font-family: var(--mono);
+            font-family: var(--font);
             font-size: 11px;
-            padding: 5px 10px;
-            border-radius: 6px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            white-space: nowrap;
         }
 
         .btn-copy:hover {
-            border-color: var(--accent2);
-            color: var(--accent2);
-            background: #00e5a015;
+            border-color: var(--text-muted);
+            color: var(--text);
+            background: var(--surface);
         }
 
         .btn-copy.copied {
-            border-color: var(--accent2);
-            color: var(--accent2);
-            background: #00e5a020;
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
         }
 
         /* Divider */
         .divider {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin: 20px 0;
+            gap: 16px;
+            margin: 24px 0;
         }
 
         .divider-line { flex: 1; height: 1px; background: var(--border); }
 
         .divider-label {
             font-size: 11px;
-            font-family: var(--mono);
-            color: var(--text-dim);
+            font-family: var(--font);
+            color: var(--text-muted);
             letter-spacing: 0.1em;
             text-transform: uppercase;
+            font-weight: 600;
         }
 
         /* Status bar */
@@ -370,9 +324,10 @@
             display: none;
             align-items: center;
             gap: 8px;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 14px; /* Increased font */
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
             margin-bottom: 20px;
             animation: slideIn 0.25s ease;
         }
@@ -384,35 +339,37 @@
 
         .status-bar.error {
             display: flex;
-            background: #ff4d6d15;
-            border: 1px solid #ff4d6d40;
-            color: var(--accent3);
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            color: #D9534F;
         }
 
         .status-bar.success {
             display: flex;
-            background: #00e5a010;
-            border: 1px solid #00e5a040;
-            color: var(--accent2);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
         }
 
         /* History */
-        .history-section { margin-top: 24px; }
+        .history-section { margin-top: 32px; text-align: center; }
 
         .history-title {
             font-size: 11px;
-            font-family: var(--mono);
-            color: var(--text-dim);
+            font-family: var(--font);
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-weight: 600;
         }
 
         .history-list {
             display: flex;
             gap: 10px;
             overflow-x: auto;
-            padding-bottom: 4px;
+            padding-bottom: 8px;
+            justify-content: center; /* Center items */
         }
 
         .history-list::-webkit-scrollbar { height: 4px; }
@@ -423,47 +380,45 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 14px;
-            background: var(--surface2);
+            padding: 8px 16px;
+            background: #fff;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            font-size: 12px; /* Increased font */
-            font-family: var(--mono);
+            transition: all 0.2s;
+            font-size: 12px;
+            font-family: var(--font);
             color: var(--text-muted);
             white-space: nowrap;
             flex-shrink: 0;
         }
 
         .history-item:hover { 
-            border-color: var(--accent); 
+            border-color: var(--accent);
             color: var(--text); 
-            background: #3d4aff10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
         
-        .history-item .hi-repo { color: var(--accent); font-weight: 700; }
+        .history-item .hi-repo { color: var(--accent); font-weight: 600; }
 
         .history-empty {
-            font-size: 12px;
-            font-family: var(--mono);
-            color: var(--text-dim);
+            font-size: 13px;
+            font-family: var(--font);
+            color: #A1A1AA;
             padding: 8px 0;
         }
     </style>
 </head>
 <body>
-    <div class="glow-orb"></div>
-
     <div class="wrapper">
         <!-- Header -->
         <div class="header">
             <div class="badge">
                 <span class="badge-dot"></span>
-                GITHUB → PAGES
+                GitHub Tool
             </div>
             <h1>Link<span>.</span>Convert</h1>
-            <p class="subtitle">Transform blob URLs into GitHub Pages links</p>
+            <p class="subtitle">Transform blob URLs into GitHub Pages links instantly.</p>
         </div>
 
         <div class="card">
@@ -472,20 +427,20 @@
             <!-- Example -->
             <div class="example-pill">
                 <span class="ex-label">Example</span>
-                <code>github.com/user/repo/blob/main/file.html</code>
+                <code>.../blob/main/file.html</code>
                 <span class="arrow">→</span>
-                <code class="out">user.github.io/repo/file.html</code>
+                <code class="out">...github.io/file.html</code>
             </div>
 
             <!-- Top row: URL + link text + open-in -->
             <div class="top-row">
                 <div class="field" style="margin:0">
-                    <div class="field-label">GitHub Blob URL <span class="tag">required</span></div>
+                    <div class="field-label">GitHub Blob URL <span class="tag">Required</span></div>
                     <input type="text" id="githubUrl" placeholder="https://github.com/user/repo/blob/main/file.html" />
                 </div>
                 <div class="field" style="margin:0">
                     <div class="field-label">Link Text</div>
-                    <input type="text" id="linkText" placeholder="Click here" />
+                    <input type="text" id="linkText" placeholder="View Project" />
                 </div>
                 <div class="field" style="margin:0">
                     <div class="field-label">Open In</div>
@@ -498,7 +453,7 @@
                 </div>
             </div>
 
-            <button class="btn-convert" onclick="convertLink()">Convert →</button>
+            <button class="btn-convert" onclick="convertLink()">Convert Link</button>
 
             <!-- Divider -->
             <div class="divider">
@@ -527,7 +482,7 @@
                             Copy
                         </button>
                     </div>
-                    <textarea id="htmlCode" readonly placeholder='<a href="..." target="_blank">Link text</a>'></textarea>
+                    <textarea id="htmlCode" readonly placeholder='<a href="..." target="_blank">Link</a>'></textarea>
                 </div>
             </div>
         </div>
@@ -547,7 +502,7 @@
         function showStatus(msg, type) {
             const bar = document.getElementById('statusBar');
             bar.className = 'status-bar ' + type;
-            bar.innerHTML = (type === 'error' ? '✗ ' : '✓ ') + msg;
+            bar.innerHTML = (type === 'error' ? '⚠ ' : '✓ ') + msg;
             setTimeout(() => { bar.className = 'status-bar'; }, 3500);
         }
 
@@ -558,7 +513,7 @@
 
             if (!githubUrl) { showStatus('Please enter a GitHub URL.', 'error'); return; }
             if (!githubUrl.includes('github.com') || !githubUrl.includes('/blob/')) {
-                showStatus('Must be a GitHub blob URL — e.g. github.com/user/repo/blob/main/file', 'error');
+                showStatus('Invalid format. Use a GitHub blob URL.', 'error');
                 return;
             }
 
@@ -586,7 +541,7 @@
                     renderHistory();
                 }
             } catch (err) {
-                showStatus('Error: ' + err.message, 'error');
+                showStatus('Error parsing URL.', 'error');
             }
         }
 
@@ -617,7 +572,7 @@
             try { await navigator.clipboard.writeText(val); }
             catch { const el = document.getElementById(id); el.select(); document.execCommand('copy'); }
             btn.classList.add('copied');
-            btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+            btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied`;
             setTimeout(() => {
                 btn.classList.remove('copied');
                 btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
