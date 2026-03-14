@@ -118,6 +118,16 @@ int main() {
     }
     cout << "\n";
 
+    // Display file names in directory
+    cout << "Name of Files in Directory\n";
+    cout << "--------------------------\n";
+    for (const auto& entry : fs::directory_iterator(path)) {
+        if (fs::is_regular_file(entry)) {
+            cout << entry.path().filename().string() << "\n";
+        }
+    }
+    cout << "\n";
+
     // Ask user which extension to rename
     string targetExt;
     cout << "Enter the extension to rename (e.g., .jpg, .txt) or 'all' for all files: ";
