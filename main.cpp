@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <map>
+#include <sstream>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -37,8 +38,10 @@ public:
     SequencePattern(string bn) : baseName(bn) {}
 
     string generateName(const fs::path& originalPath, int index) override {
-        // Result: BaseName_01.extension, BaseName_02.extension...
-        return baseName + "_" + to_string(index) + originalPath.extension().string();
+        // Result: BaseName_001.extension, BaseName_002.extension... (always 3 digits)
+        ostringstream oss;
+        oss << baseName << "_" << setw(3) << setfill('0') << index << originalPath.extension().string();
+        return oss.str();
     }
 };
 
@@ -142,7 +145,7 @@ int main() {
 
     // Ask for naming pattern
     cout << "\nChoose naming pattern:\n";
-    cout << "1. Sequence (BaseName_01.ext, BaseName_02.ext...)\n";
+    cout << "1. Sequence (BaseName_001.ext, BaseName_002.ext...)\n";
     cout << "2. Prefix (Prefix_OriginalName.ext)\n";
     cout << "Enter choice (1 or 2): ";
     int choice;
