@@ -23,3 +23,27 @@ whatsapp-cli send --to 923254999625@s.whatsapp.net --message "Hello, this is a t
 ```
 whatsapp-cli-windows-amd64.exe send --to 923463655864@s.whatsapp.net --message "Hello, this is a test message sent via AI"
 ```
+
+##**Mermaid Config**
+```
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#ffffff",
+    "primaryTextColor": "#000000",
+    "primaryBorderColor": "#000000",
+    "lineColor": "#000000",
+    "secondaryColor": "#ffffff",
+    "tertiaryColor": "#ffffff",
+    "background": "#ffffff",
+    "mainBkg": "#ffffff",
+    "secondBkg": "#ffffff",
+    "tertiaryBkg": "#ffffff",
+    "nodeBorder": "#000000",
+    "clusterBkg": "#ffffff",
+    "clusterBorder": "#000000",
+    "edgeLabelBackground": "#ffffff",
+    "textColor": "#000000"
+  }
+}}%%
+```
