@@ -3,7 +3,7 @@
 
 <a href="https://afnan-nex.github.io/my-fav-scripts/drive%20download%20link.html" target="_blank" rel="noopener noreferrer">Drive Download LInk Converter</a>
 
-<a href="https://afnan-nex.github.io/cache-file-downloader/chache-file-downloader.html" target="_blank" rel="noopener noreferrer">Open Cache File Downloader</a>
+<a href="https://afnan-nex.github.io/my-fav-scripts/cache-file-downloader.html" target="_blank" rel="noopener noreferrer">Open Cache File Downloader</a>
 
 ## **Change cmd color to 0a 🟩**
 ```
