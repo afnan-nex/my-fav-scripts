@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All-in-One Cache Downloader</title>
+    <link rel="icon" type="image/png" href="https://img.icons8.com/office/40/download--v1.png">
+    
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -39,6 +41,10 @@
             font-weight: 600;
             color: #4a5568;
         }
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
         input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -58,25 +64,43 @@
         }
         .flex-3 { flex: 3; }
         .flex-1 { flex: 1; }
+        
+        /* Buttons */
         button {
-            width: 100%;
-            background-color: #3182ce;
-            color: white;
-            padding: 12px;
             border: none;
             border-radius: 6px;
-            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s;
         }
-        button:hover {
+        .btn-primary {
+            width: 100%;
+            background-color: #3182ce;
+            color: white;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .btn-primary:hover {
             background-color: #2b6cb0;
+        }
+        .btn-secondary {
+            background-color: #edf2f7;
+            color: #4a5568;
+            padding: 0 15px;
+            font-size: 14px;
+            border: 1px solid #cbd5e0;
+            white-space: nowrap;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
         }
         button:disabled {
             background-color: #a0aec0;
+            color: #fff;
             cursor: not-allowed;
         }
+        
+        /* Status & Progress */
         #status {
             margin-top: 15px;
             padding: 10px;
@@ -112,7 +136,10 @@
     
     <div class="form-group">
         <label for="urlInput">Direct Download URL</label>
-        <input type="text" id="urlInput" placeholder="https://example.com/file.mp4" autocomplete="off">
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="https://example.com/file.mp4" autocomplete="off">
+            <button class="btn-secondary" onclick="pasteFromClipboard()">Paste</button>
+        </div>
     </div>
     
     <div class="row">
@@ -126,7 +153,7 @@
         </div>
     </div>
     
-    <button id="downloadBtn" onclick="startDownload()">Fetch & Save File</button>
+    <button id="downloadBtn" class="btn-primary" onclick="startDownload()">Fetch & Save File</button>
     
     <div id="status" class="info"></div>
     <div class="progress-bar-container" id="progressContainer">
@@ -135,10 +162,27 @@
 </div>
 
 <script>
+    async function pasteFromClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById('urlInput').value = text;
+            showStatus('URL pasted successfully!', 'success');
+            setTimeout(() => {
+                const statusDiv = document.getElementById('status');
+                if(statusDiv.className === 'success' && statusDiv.innerText.includes('pasted')) {
+                    statusDiv.style.display = 'none';
+                }
+            }, 2000);
+        } catch (err) {
+            showStatus('Failed to read clipboard. Please grant clipboard permissions or paste manually.', 'error');
+            console.error('Clipboard error: ', err);
+        }
+    }
+
     async function startDownload() {
         const url = document.getElementById('urlInput').value.trim();
         let fileName = document.getElementById('nameInput').value.trim();
-        let ext = document.getElementById('extInput').value.trim().replace(/^\./, ''); // remove leading dot if any
+        let ext = document.getElementById('extInput').value.trim().replace(/^\./, ''); 
         
         const statusDiv = document.getElementById('status');
         const downloadBtn = document.getElementById('downloadBtn');
@@ -150,19 +194,15 @@
             return;
         }
 
-        // Reset UI
         showStatus('Connecting and fetching to browser cache...', 'info');
         downloadBtn.disabled = true;
         progressContainer.style.display = 'block';
         progressBar.style.width = '0%';
 
         try {
-            // 1. Fetch the data from the URL
             const response = await fetch(url);
-            
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
-            // Setup progress tracking if Content-Length is available
             const contentLength = response.headers.get('content-length');
             const totalBytes = contentLength ? parseInt(contentLength, 10) : 0;
             
@@ -172,10 +212,7 @@
 
             while(true) {
                 const {done, value} = await reader.read();
-                
-                if (done) {
-                    break;
-                }
+                if (done) break;
                 
                 chunks.push(value);
                 receivedBytes += value.length;
@@ -185,30 +222,22 @@
                     progressBar.style.width = percentComplete + '%';
                     showStatus(`Caching to browser memory: ${percentComplete}%`, 'info');
                 } else {
-                    showStatus(`Caching to browser memory: ${(receivedBytes / (1024 * 1024)).toFixed(2)} MB loaded (unknown total)...`, 'info');
+                    showStatus(`Caching to browser memory: ${(receivedBytes / (1024 * 1024)).toFixed(2)} MB loaded...`, 'info');
                 }
             }
 
-            // 2. Combine chunks into a single Blob (browser memory/cache)
             showStatus('File cached successfully! Preparing save dialog...', 'info');
             const blob = new Blob(chunks);
-            
-            // Ensure full file name has the extension
             const finalFileName = ext ? `${fileName}.${ext}` : fileName;
 
-            // 3. Trigger download sequence to disk
-            // Check if modern File System Access API is supported (allows picking specific folders smoothly)
             if ('showSaveFilePicker' in window) {
                 try {
-                    const handle = await window.showSaveFilePicker({
-                        suggestedName: finalFileName,
-                    });
+                    const handle = await window.showSaveFilePicker({ suggestedName: finalFileName });
                     const writable = await handle.createWritable();
                     await writable.write(blob);
                     await writable.close();
                     showStatus(`Success! File saved as: ${handle.name}`, 'success');
                 } catch (err) {
-                    // User cancelled the native picker, try fallback standard method
                     if (err.name !== 'AbortError') {
                         fallbackDownload(blob, finalFileName);
                     } else {
@@ -216,7 +245,6 @@
                     }
                 }
             } else {
-                // Fallback for older browsers / standard download triggers
                 fallbackDownload(blob, finalFileName);
             }
 
@@ -241,6 +269,7 @@
         showStatus(`File processed. Triggered browser save for: ${filename}`, 'success');
     }
 
+    // Fixed the missing "u" in function below
     function showStatus(text, type) {
         const statusDiv = document.getElementById('status');
         statusDiv.style.display = 'block';
