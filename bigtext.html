@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Teleprompter</title>
+<style>
+  /* ---------- Base reset ---------- */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Configuration screen ---------- */
+  #config {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+    gap: 12px;
+  }
+  #textInput {
+    flex: 1;
+    width: 100%;
+    background: #000000;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+    caret-color: #FFFFFF;
+    padding: 12px;
+    font-size: 16px;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+  }
+  #textInput::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .row .label {
+    min-width: 130px;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  .colors {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  /* Color swatches — perfect circles with thin white border */
+  .swatch {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #fff;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .swatch.selected::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .swatch.plus {
+    background: #000;
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .swatch input[type="color"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    border-radius: 50%;
+  }
+
+  #goBtn {
+    width: 100%;
+    padding: 16px;
+    background: #000000;
+    color: #FFFFFF;
+    border: 2px solid #FFFFFF;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+  }
+  #goBtn:active { opacity: 0.8; }
+
+  /* ---------- Fullscreen display ---------- */
+  #display {
+    display: none;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    color: #ff0;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  #text {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    padding: 16px;
+    width: 100%;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    white-space: pre-wrap;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+
+  /* ---------- Mobile exit dot ----------
+     A tiny solid dot shown only on mobile/tablet devices
+     while fullscreen is active. Tapping it exits fullscreen. */
+  #mobileExitDot {
+    display: none;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: #FFFF00;
+    cursor: pointer;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ CONFIGURATION SCREEN ============ -->
+<div id="config">
+  <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+
+  <div class="row">
+    <div class="label">Text Color</div>
+    <div class="colors" id="textColors"></div>
+  </div>
+
+  <div class="row">
+    <div class="label">Background Color</div>
+    <div class="colors" id="bgColors"></div>
+  </div>
+
+  <button id="goBtn">Display Full Screen</button>
+</div>
+
+<!-- ============ FULLSCREEN DISPLAY ============ -->
+<div id="display">
+  <div id="text"></div>
+  <button id="mobileExitDot" aria-label="Exit fullscreen"></button>
+</div>
+
+<script>
+/* ============================================================
+   Teleprompter — single-file vanilla JS implementation
+   ============================================================ */
+
+/* ---------- State ---------- */
+const state = {
+  textColor:   '#FFFF00',
+  bgColor:     '#000000',
+  textPresets: ['#FFFF00', '#FFFFFF', '#FF5555', '#55FF55', '#55FFFF'],
+  bgPresets:   ['#000000', '#FFFFFF', '#0033AA', '#AA0000', '#005500']
+};
+
+/* ---------- DOM refs ---------- */
+const configEl      = document.getElementById('config');
+const displayEl     = document.getElementById('display');
+const textEl        = document.getElementById('text');
+const textInput     = document.getElementById('textInput');
+const goBtn         = document.getElementById('goBtn');
+const textColors    = document.getElementById('textColors');
+const bgColors      = document.getElementById('bgColors');
+const mobileExitDot = document.getElementById('mobileExitDot');
+
+/* ---------- Mobile device detection ----------
+   Returns true for phones and tablets. Desktops (including touch-capable
+   laptops) return false so the exit dot is never shown there. */
+function isMobileDevice() {
+  const ua = navigator.userAgent || navigator.vendor || '';
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+    return true;
+  }
+  // Fallback: touch device with a reasonably small viewport
+  return navigator.maxTouchPoints > 0 && window.innerWidth < 1100;
+}
+
+const mobileDevice = isMobileDevice();
+
+/* ---------- Build color rows ----------
+   Order is fixed: default, 4 presets, then "+" custom picker. */
+function buildColorRow(container, presets, currentColor, onPick) {
+  container.innerHTML = '';
+  presets.forEach((color) => {
+    const btn = document.createElement('button');
+    btn.className = 'swatch';
+    btn.style.background = color;
+    btn.dataset.color = color;
+    if (color.toLowerCase() === currentColor.toLowerCase()) btn.classList.add('selected');
+    btn.addEventListener('click', () => {
+      state[onPick] = color;
+      updateSelection(container, color);
+    });
+    container.appendChild(btn);
+  });
+
+  /* "+" button opens native color picker */
+  const plusWrap = document.createElement('button');
+  plusWrap.className = 'swatch plus';
+  plusWrap.textContent = '+';
+  const picker = document.createElement('input');
+  picker.type = 'color';
+  picker.value = currentColor;
+  picker.addEventListener('input', (e) => {
+    const c = e.target.value.toUpperCase();
+    state[onPick] = c;
+    updateSelection(container, c);
+  });
+  plusWrap.appendChild(picker);
+  container.appendChild(plusWrap);
+}
+
+function updateSelection(container, color) {
+  [...container.querySelectorAll('.swatch')].forEach(b => {
+    b.classList.toggle('selected', b.dataset.color && b.dataset.color.toLowerCase() === color.toLowerCase());
+  });
+}
+
+/* ---------- Initial UI build ---------- */
+buildColorRow(textColors, state.textPresets, state.textColor, 'textColor');
+buildColorRow(bgColors,   state.bgPresets,   state.bgColor,   'bgColor');
+
+/* ---------- Automatic sentence capitalization ----------
+   Listens to input events and capitalizes the first letter of each
+   new sentence (after '.', '!', '?', newline, or at the very start). */
+textInput.addEventListener('input', function() {
+  const pos = this.selectionStart;
+  const text = this.value;
+
+  // Nothing to capitalize if cursor is at position 0
+  if (pos === 0) return;
+
+  const charToCheck = text[pos - 1];
+
+  // Only process lowercase letters
+  if (!/[a-z]/.test(charToCheck)) return;
+
+  let shouldCapitalize = false;
+
+  if (pos === 1) {
+    // Very first character in the textarea
+    shouldCapitalize = true;
+  } else {
+    // Scan backwards from the character before the typed letter
+    let foundNonWhitespace = false;
+    for (let i = pos - 2; i >= 0; i--) {
+      const prevChar = text[i];
+
+      // Newline counts as a sentence boundary
+      if (prevChar === '\n') {
+        shouldCapitalize = true;
+        foundNonWhitespace = true;
+        break;
+      }
+
+      // Skip spaces and tabs (but not newlines, handled above)
+      if (prevChar === ' ' || prevChar === '\t' || prevChar === '\r') {
+        continue;
+      }
+
+      // Found a non-whitespace character
+      foundNonWhitespace = true;
+      if (prevChar === '.' || prevChar === '!' || prevChar === '?') {
+        shouldCapitalize = true;
+      }
+      break;
+    }
+
+    // If we scanned all the way back without finding any non-whitespace
+    // character, this is the first actual letter in the text
+    if (!foundNonWhitespace) {
+      shouldCapitalize = true;
+    }
+  }
+
+  if (shouldCapitalize) {
+    const upperChar = charToCheck.toUpperCase();
+    this.value = text.substring(0, pos - 1) + upperChar + text.substring(pos);
+    // Restore cursor position after modifying the value
+    this.selectionStart = this.selectionEnd = pos;
+  }
+});
+
+/* ---------- Font size auto-calculation ----------
+   Binary search for the largest font-size that keeps the text
+   fully visible (no horizontal or vertical overflow). */
+function computeMaxFontSize() {
+  const text = textInput.value;
+  if (!text.trim()) { textEl.style.fontSize = '16px'; return; }
+
+  textEl.textContent = text;
+  textEl.style.fontSize = '16px';
+
+  /* Use a hidden measuring clone so we don't flicker the display */
+  const measurer = document.createElement('div');
+  measurer.style.cssText = `
+    position: absolute;
+    visibility: hidden;
+    left: 0; right: 0;
+    margin: 0 auto;
+    padding: 16px;
+    width: 100%;
+    text-align: center;
+    word-break: keep-all;
+    overflow-wrap: normal;
+    white-space: pre-wrap;
+    font-weight: 600;
+    line-height: 1.15;
+    font-family: ${getComputedStyle(textEl).fontFamily};
+  `;
+  measurer.textContent = text;
+  displayEl.appendChild(measurer);
+
+  const availW = displayEl.clientWidth;
+  const availH = displayEl.clientHeight;
+
+  let lo = 1, hi = 400, best = 16;
+  for (let i = 0; i < 20; i++) {
+    const mid = Math.floor((lo + hi) / 2);
+    measurer.style.fontSize = mid + 'px';
+    if (measurer.scrollWidth <= availW && measurer.scrollHeight <= availH) {
+      best = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+
+  textEl.style.fontSize = best + 'px';
+  displayEl.removeChild(measurer);
+
+  /* Vertical alignment: center if it fits, top-align with padding otherwise */
+  textEl.style.top = '';
+  textEl.style.transform = '';
+  textEl.style.bottom = '';
+  const h = textEl.scrollHeight;
+  if (h <= availH) {
+    /* Center vertically */
+    textEl.style.top = '50%';
+    textEl.style.transform = 'translateY(-50%)';
+  } else {
+    /* Exceeds height — align to top with small padding */
+    textEl.style.top = '16px';
+    textEl.style.transform = 'none';
+  }
+}
+
+/* ---------- Enter fullscreen ---------- */
+async function enterFullscreen() {
+  const text = textInput.value.trim();
+  if (!text) {
+    alert('Please enter some text first.');
+    return;
+  }
+
+  textEl.textContent = text;
+  textEl.style.color = state.textColor;
+  displayEl.style.background = state.bgColor;
+
+  /* Set mobile exit dot color to match current text color,
+     and show it only on mobile devices */
+  if (mobileDevice) {
+    mobileExitDot.style.background = state.textColor;
+    mobileExitDot.style.display = 'block';
+  } else {
+    mobileExitDot.style.display = 'none';
+  }
+
+  configEl.style.display = 'none';
+  displayEl.style.display = 'block';
+
+  /* Request fullscreen (works on desktop & Android) */
+  try {
+    const target = document.documentElement;
+    const req = target.requestFullscreen
+      || target.webkitRequestFullscreen
+      || target.msRequestFullscreen;
+    if (req) await req.call(target);
+  } catch (e) {
+    /* Fallback: just show the display fullscreen-style without API */
+  }
+
+  /* Android: attempt to lock orientation to landscape */
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape');
+    }
+  } catch (e) { /* ignore — not supported or denied */ }
+
+  computeMaxFontSize();
+}
+
+/* ---------- Exit fullscreen handler ---------- */
+function exitFullscreen() {
+  displayEl.style.display = 'none';
+  mobileExitDot.style.display = 'none';
+  configEl.style.display = 'flex';
+  try {
+    if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+  } catch (e) {}
+}
+
+/* ---------- Event wiring ---------- */
+goBtn.addEventListener('click', enterFullscreen);
+
+/* Mobile exit dot: tap to exit fullscreen */
+mobileExitDot.addEventListener('click', async (e) => {
+  e.stopPropagation();
+  try {
+    if (document.exitFullscreen) await document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else exitFullscreen();
+  } catch (err) {
+    exitFullscreen();
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) exitFullscreen();
+});
+document.addEventListener('webkitfullscreenchange', () => {
+  if (!document.webkitFullscreenElement) exitFullscreen();
+});
+
+/* Double-click anywhere in display exits fullscreen (desktop) */
+displayEl.addEventListener('dblclick', async (e) => {
+  // Ignore if the click was on the mobile exit dot
+  if (e.target === mobileExitDot) return;
+  try {
+    if (document.exitFullscreen) await document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+  } catch (e) {}
+});
+
+/* Recalc font size on resize / orientation change while fullscreen */
+window.addEventListener('resize', () => {
+  if (displayEl.style.display === 'block') computeMaxFontSize();
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    if (displayEl.style.display === 'block') computeMaxFontSize();
+  }, 200);
+});
+</script>
+</body>
+</html>
