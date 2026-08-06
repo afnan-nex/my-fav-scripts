@@ -948,7 +948,7 @@ function buildPDF(){
 
   /* ---- financial summary · bottom right ---- */
   const taxAmt = sub*rate/100, total = sub + taxAmt - disc - dep;
-  if (items.length || disc>0 || dep>0 || rate>0){
+  if (body.length || disc>0 || dep>0 || rate>0){
     currentY += 9;
     const sw=76, sx=pw-M-sw;
     const srows=[['Subtotal', pdfMoney(sub)]];
@@ -1012,8 +1012,9 @@ function buildPDF(){
       doc.text(noteLines, M, ly);
     }
     if (rightF.length){
-      doc.setCharSpace(0.7); doc.setFont('helvetica','bold'); doc.setFontSize(8);
-      doc.setTextColor(...SOFT); doc.text('PAYMENT TERMS', pw-M, fy, {align:'right'}); doc.setCharSpace(0);
+      doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...SOFT);
+      const ptWidth = doc.getTextWidth('PAYMENT TERMS');
+      doc.text('PAYMENT TERMS', pw-M-ptWidth, fy);
       let ry2 = fy+5.5;
       rightF.forEach((ln,i)=>{
         doc.setFont('helvetica', i===0?'bold':'normal'); doc.setFontSize(9);
