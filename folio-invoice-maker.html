@@ -54,6 +54,8 @@ body{background:var(--bg);color:var(--ink);font:400 13px/1.4 var(--fb);-webkit-f
 .chip-k{font:600 9px var(--fb);text-transform:uppercase;letter-spacing:.14em;color:var(--ink-2)}
 .chip-v{font:600 17px var(--fm);transition:color .35s}
 .chip-v.bump{color:var(--accent)}
+.topbar-actions{display:flex;gap:6px;align-items:center}
+.topbar-actions .btn{height:28px;font-size:10px;padding:0 10px}
 
 /* ---------- layout ---------- */
 .layout{flex:1;min-height:0;display:grid;gap:13px;padding:14px 16px 16px;
@@ -118,6 +120,11 @@ textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(
 .x{width:22px;height:22px;border:none;background:transparent;color:var(--ink-3);
   font-size:14px;line-height:1;border-radius:5px;cursor:pointer;transition:.15s}
 .x:hover{background:var(--tint);color:var(--ink)}
+.subtotal-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--line);margin-top:2px}
+.subtotal-row .s-label{flex:1;height:27px;padding:0 9px;border:1px dashed var(--line-2);border-radius:6px;
+  background:var(--tint);color:var(--ink);font:600 11.5px var(--fd);letter-spacing:.02em}
+.subtotal-row .s-label:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.subtotal-row .s-total{font:600 12px var(--fm);color:var(--ink);min-width:80px;text-align:right}
 
 /* ---------- summary ---------- */
 .srow{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;
@@ -185,6 +192,11 @@ kbd{font:600 9.5px var(--fm);background:rgba(255,255,255,.25);padding:2px 5px;bo
       </svg>
       <div class="brand-t"><b>Folio by AFNAN</b><span>Invoice Studio</span></div>
     </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" id="exportJsonBtn" type="button">Export JSON</button>
+      <button class="btn btn-ghost btn-sm" id="importJsonBtn" type="button">Import JSON</button>
+      <input type="file" id="jsonFileInput" accept=".json" hidden>
+    </div>
     <div class="chip" title="Live total amount due">
       <span class="chip-k">Total due</span>
       <span class="chip-v mono" id="chipTotal">—</span>
@@ -251,6 +263,7 @@ kbd{font:600 9.5px var(--fm);background:rgba(255,255,255,.25);padding:2px 5px;bo
       <div class="panel items-panel">
         <div class="p-head">
           <h2 class="p-title"><span class="n">04</span>Line Items</h2>
+          <button class="btn btn-ghost btn-sm" id="addSubtotalBtn" type="button">＋ Add subtotal</button>
           <button class="btn btn-ghost btn-sm" id="addItemBtn" type="button">＋ Add item</button>
         </div>
         <div class="items-scroll" id="itemsScroll">
@@ -278,6 +291,7 @@ kbd{font:600 9.5px var(--fm);background:rgba(255,255,255,.25);padding:2px 5px;bo
         <div class="p-head"><h2 class="p-title"><span class="n">06</span>Payment &amp; Terms</h2></div>
         <div class="grid">
           <label class="field s3"><span>Bank name</span><input id="pBank" placeholder="First National Bank"></label>
+          <label class="field s3"><span>Account name / title</span><input id="pAcctName" placeholder="Acme Studio LLC"></label>
           <label class="field s3"><span>Account №</span><input id="pAcct" class="mono" placeholder="0000 0000 0000"></label>
           <label class="field s3"><span>IBAN / SWIFT</span><input id="pIban" class="mono" placeholder="SWIFT XXXX0000"></label>
           <label class="field s3"><span>PayPal / payment link</span><input id="pLink" placeholder="paypal.me/you"></label>
@@ -317,6 +331,7 @@ kbd{font:600 9.5px var(--fm);background:rgba(255,255,255,.25);padding:2px 5px;bo
             <select id="paper"><option value="a4" selected>A4</option><option value="letter">Letter</option></select>
           </label>
         </div>
+        <label class="field s6"><span>PDF file name</span><input id="pdfFileName" placeholder="Pakeeza_POS_Invoice"></label>
         <button class="btn btn-primary btn-big" id="downloadBtn" type="button">
           Generate PDF<kbd>⌘↵</kbd>
         </button>
@@ -385,6 +400,8 @@ function setDefaults(){
   $('invNum').value = 'INV-' + new Date().getFullYear() + '-' + Math.floor(100+Math.random()*900);
   $('issueDate').value = todayPlus(0);
   $('dueDate').value = todayPlus(30);
+  $('pdfFileName').value = '';
+  $('pAcctName').value = '';
 }
 const NET = {'Due on Receipt':0,'Net 15':15,'Net 30':30,'Net 45':45,'Net 60':60};
 function applyTerms(){
@@ -418,6 +435,23 @@ function addItem(d={}){
   recalc();
 }
 $('addItemBtn').addEventListener('click', ()=> addItem());
+$('addSubtotalBtn').addEventListener('click', ()=> addSubtotal());
+
+function addSubtotal(label=''){
+  const row = document.createElement('div');
+  row.className = 'subtotal-row';
+  row.innerHTML =
+    `<input class="s-label" type="text" placeholder="Subtotal label (e.g. Development)" value="${esc(label)}">
+     <div class="s-total mono">—</div>
+     <button class="x" type="button" title="Remove subtotal" aria-label="Remove subtotal">×</button>`;
+  row.querySelector('.s-label').addEventListener('input', recalc);
+  row.querySelector('.x').addEventListener('click', ()=>{
+    row.remove();
+    recalc();
+  });
+  itemsWrap.appendChild(row);
+  recalc();
+}
 
 /* ---------- live math ---------- */
 function recalc(){
@@ -427,6 +461,16 @@ function recalc(){
           p = num(r.querySelector('.i-price').value), t = q*p;
     sub += t;
     r.querySelector('.lt').textContent = (q||p) ? money(t) : '—';
+  });
+  let runningSub = sub;
+  itemsWrap.querySelectorAll('.subtotal-row').forEach(r=>{
+    const label = r.querySelector('.s-label').value.trim();
+    const totalEl = r.querySelector('.s-total');
+    if (label){
+      totalEl.textContent = 'Subtotal: ' + pdfMoney(runningSub);
+    } else {
+      totalEl.textContent = '—';
+    }
   });
   const rate = num($('taxRate').value), disc = num($('discount').value), dep = num($('deposit').value);
   const tax = sub*rate/100, total = sub + tax - disc - dep;
@@ -519,6 +563,100 @@ function generateQR(url){
   return img ? img.src : null;
 }
 
+/* ---------- JSON import / export ---------- */
+function gatherData(){
+  const items=[];
+  itemsWrap.querySelectorAll('.item-row').forEach(r=>{
+    items.push({
+      type:'item', desc: r.querySelector('.i-desc').value,
+      qty: num(r.querySelector('.i-qty').value),
+      price: num(r.querySelector('.i-price').value)
+    });
+  });
+  itemsWrap.querySelectorAll('.subtotal-row').forEach(r=>{
+    items.push({ type:'subtotal', label: r.querySelector('.s-label').value });
+  });
+  return {
+    sender:{
+      name:v('cName'), tax:v('cTax'), phone:v('cPhone'), email:v('cEmail'),
+      address:v('cAddress'), url:v('cUrl'), logoUrl:v('logoUrl')
+    },
+    billTo:{
+      name:v('bName'), company:v('bCompany'), address:v('bAddress'), contact:v('bContact')
+    },
+    invoice:{
+      number:v('invNum'), issueDate:v('issueDate'), dueDate:v('dueDate'),
+      qrUrl:v('qrUrl'), projectTitle:v('pTitle'), projectDesc:v('pDesc'),
+      pdfFileName:v('pdfFileName')
+    },
+    items,
+    adjustments:{
+      taxRate:num($('taxRate').value), discount:num($('discount').value),
+      deposit:num($('deposit').value)
+    },
+    payment:{
+      bank:v('pBank'), accountName:v('pAcctName'), account:v('pAcct'),
+      iban:v('pIban'), link:v('pLink'), terms:$('pTerms').value,
+      late:v('pLate'), note:v('invNote')
+    },
+    meta:{ currency:$('currency').value, paper:$('paper').value }
+  };
+}
+function applyData(data){
+  if (!data) return;
+  setV({
+    cName:data.sender?.name||'', cTax:data.sender?.tax||'', cPhone:data.sender?.phone||'',
+    cEmail:data.sender?.email||'', cAddress:data.sender?.address||'',
+    cUrl:data.sender?.url||'', logoUrl:data.sender?.logoUrl||'',
+    bName:data.billTo?.name||'', bCompany:data.billTo?.company||'',
+    bAddress:data.billTo?.address||'', bContact:data.billTo?.contact||'',
+    invNum:data.invoice?.number||'', issueDate:data.invoice?.issueDate||'',
+    dueDate:data.invoice?.dueDate||'', qrUrl:data.invoice?.qrUrl||'',
+    pTitle:data.invoice?.projectTitle||'', pDesc:data.invoice?.projectDesc||'',
+    pdfFileName:data.invoice?.pdfFileName||'',
+    taxRate:data.adjustments?.taxRate||'', discount:data.adjustments?.discount||'',
+    deposit:data.adjustments?.deposit||'',
+    pBank:data.payment?.bank||'', pAcctName:data.payment?.accountName||'',
+    pAcct:data.payment?.account||'', pIban:data.payment?.iban||'',
+    pLink:data.payment?.link||'', pLate:data.payment?.note||''
+  });
+  if (data.payment?.terms) $('pTerms').value = data.payment.terms;
+  if (data.meta?.currency) $('currency').value = data.meta.currency;
+  if (data.meta?.paper) $('paper').value = data.meta.paper;
+  if (data.invoice?.qrUrl) loadLogoUrl();
+  itemsWrap.innerHTML = '';
+  (data.items||[]).forEach(it=>{
+    if (it.type === 'subtotal') addSubtotal(it.label||'');
+    else addItem(it);
+  });
+  recalc();
+  setDefaults();
+}
+$('exportJsonBtn').addEventListener('click', ()=>{
+  const data = gatherData();
+  const invNo = data.invoice.number || 'invoice';
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'invoice_data_' + invNo.replace(/[^\w\-]+/g,'_') + '.json'; a.click();
+  URL.revokeObjectURL(url);
+  setStatus('✓ JSON exported.');
+});
+$('importJsonBtn').addEventListener('click', ()=> $('jsonFileInput').click());
+$('jsonFileInput').addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const data = JSON.parse(r.result);
+      applyData(data);
+      setStatus('✓ JSON imported — form populated.');
+    }catch(err){ setStatus('⚠ Invalid JSON file.'); }
+  };
+  r.readAsText(f);
+  $('jsonFileInput').value = '';
+});
+
 /* ---------- sample & reset ---------- */
 function setV(o){ for(const k in o) $(k).value = o[k]; }
 $('sampleBtn').addEventListener('click', ()=>{
@@ -535,22 +673,27 @@ $('sampleBtn').addEventListener('click', ()=>{
     bContact:'ava@cascadecoffee.com · +1 (503) 555-0190',
     invNum:'INV-2025-014', issueDate:todayPlus(0), dueDate:todayPlus(30),
     taxRate:'0', discount:'150', deposit:'1000',
-    pBank:'First Northwest Bank', pAcct:'4821 0093 7754',
+    pBank:'First Northwest Bank', pAcctName:'Northline Studio LLC', pAcct:'4821 0093 7754',
     pIban:'SWIFT FNWBUS55 · 021-004-887', pLink:'paypal.me/northline',
-    pTerms:'Net 30', pLate:'Balances overdue by 14+ days accrue 1.5% monthly.'
+    pTerms:'Net 30', pLate:'Balances overdue by 14+ days accrue 1.5% monthly.',
+    pdfFileName:'Northline_INV_2025_014',
   });
   itemsWrap.innerHTML = '';
   addItem({desc:'Brand identity — logo suite & usage guidelines', qty:1,   price:2400});
   addItem({desc:'Packaging design · three SKU variants',          qty:3,   price:650});
   addItem({desc:'Art direction & studio time',                    qty:6.5, price:95});
+  addSubtotal('Design');
+  addItem({desc:'Server setup & domain configuration',            qty:1,  price:8400});
+  addItem({desc:'Annual domain registration',                     qty:1,  price:400});
+  addSubtotal('Hosting');
   dueManual = true; recalc();
   setStatus('Sample loaded — hit Download PDF.');
 });
 $('resetBtn').addEventListener('click', ()=>{
   ['cName','cTax','cPhone','cEmail','cAddress','logoUrl','bName','bCompany','bAddress',
-    'bContact','taxRate','discount','deposit','pBank','pAcct','pIban','pLink','pLate','cUrl','qrUrl','pTitle','pDesc','invNote']
+    'bContact','taxRate','discount','deposit','pBank','pAcctName','pAcct','pIban','pLink','pLate','cUrl','qrUrl','pTitle','pDesc','invNote','pdfFileName']
    .forEach(id => $(id).value='');
-  $('pTerms').value='Net 30'; $('currency').value='USD'; $('paper').value='a4';
+  $('pTerms').value='Not specified'; $('currency').value='PKR'; $('paper').value='a4';
   dueManual = false; clearLogo();
   itemsWrap.innerHTML = ''; addItem();
   setDefaults(); recalc(); setStatus('');
@@ -568,7 +711,10 @@ async function download(){
     const doc = buildPDF();
     const blob = doc.output('blob');
     const url = URL.createObjectURL(blob);
-    const filename = ($('invNum').value.trim()||'invoice').replace(/[^\w\-]+/g,'_') + '.pdf';
+    let filename = $('pdfFileName').value.trim();
+    if (!filename && $('pTitle').value.trim()) filename = $('pTitle').value.trim();
+    if (!filename) filename = $('invNum').value.trim() || 'invoice';
+    filename = filename.replace(/[^\w\-]+/g,'_') + '.pdf';
     showModal(url, filename);
     setStatus('✓ PDF ready — choose Print, Download, or Close');
   }catch(err){ console.error(err); setStatus('⚠ ' + err.message); }
@@ -623,6 +769,7 @@ function buildPDF(){
   const bName=v('bName'), bCo=v('bCompany'), bAddr=v('bAddress'), bCon=v('bContact');
   const rate=num($('taxRate').value), disc=num($('discount').value), dep=num($('deposit').value);
   const terms=$('pTerms').value, late=v('pLate');
+  const acctName=v('pAcctName');
   const qrUrl=v('qrUrl'), pTitle=v('pTitle'), pDesc=v('pDesc'), invNote=v('invNote');
   const qrDataUrl = qrUrl ? generateQR(/^https?:\/\//i.test(qrUrl) ? qrUrl : 'https://' + qrUrl) : null;
 
@@ -741,7 +888,7 @@ function buildPDF(){
     currentY += 5.5;
     if (pTitle){
       doc.setFont('helvetica','bold'); doc.setFontSize(10.5); doc.setTextColor(...INK);
-      const parts = doc.splitTextToSize('Project: ' + pTitle, pw-2*M);
+      const parts = doc.splitTextToSize(pTitle, pw-2*M);
       doc.text(parts, M, currentY);
       currentY += parts.length * 5.2;
     }
@@ -755,21 +902,32 @@ function buildPDF(){
   }
 
   /* ---- itemized table ---- */
-  const rows=[]; let sub=0;
-  itemsWrap.querySelectorAll('.item-row').forEach(r=>{
-    const d=r.querySelector('.i-desc').value.trim(),
-          q=num(r.querySelector('.i-qty').value),
-          p=num(r.querySelector('.i-price').value);
-    if (!d && !q && !p) return;
-    sub += q*p;
-    rows.push([d||'—', q?(Math.round(q*100)/100).toString():'—', pdfMoney(p), pdfMoney(q*p)]);
-  });
-  if (rows.length){
+  const body = []; let sub = 0, groupSub = 0;
+  const children = itemsWrap.children;
+  for (let i = 0; i < children.length; i++){
+    const row = children[i];
+    if (row.classList.contains('item-row')){
+      const d = row.querySelector('.i-desc').value.trim(),
+            q = num(row.querySelector('.i-qty').value),
+            p = num(row.querySelector('.i-price').value);
+      if (!d && !q && !p) continue;
+      const amt = q * p;
+      sub += amt; groupSub += amt;
+      body.push([d||'—', q?(Math.round(q*100)/100).toString():'—', pdfMoney(p), pdfMoney(amt)]);
+    } else if (row.classList.contains('subtotal-row')){
+      const label = row.querySelector('.s-label').value.trim();
+      if (label){
+        body.push([{content:'SUB-TOTAL: ' + label, colSpan:3, styles:{fontStyle:'bold', fillColor:TINT, textColor:DARK}}, {content:pdfMoney(groupSub), styles:{fontStyle:'bold', textColor:INK}}]);
+      }
+      groupSub = 0;
+    }
+  }
+  if (body.length){
     doc.autoTable({
       startY: currentY+2,
       head: [['Description','Qty','Unit Price','Total']],
-      body: rows,
-      margin: {left:M, right:M, top:14, bottom:16},
+      body: body,
+      margin: {left:M, right:M, top:14, bottom:35},
       theme: 'grid',
       styles:     {font:'helvetica', fontSize:9.5, textColor:INK,
                    cellPadding:{top:3,right:3,bottom:3,left:3}, lineColor:GRID, lineWidth:0.2},
@@ -781,9 +939,16 @@ function buildPDF(){
     currentY = doc.lastAutoTable.finalY;
   }
 
+  /* ---- page overflow guard ---- */
+  const summaryBlockH = 10.5 + 9 + 6 + 10.5;
+  if (currentY + summaryBlockH > ph - 40){
+    doc.addPage();
+    currentY = 16;
+  }
+
   /* ---- financial summary · bottom right ---- */
   const taxAmt = sub*rate/100, total = sub + taxAmt - disc - dep;
-  if (rows.length || disc>0 || dep>0 || rate>0){
+  if (items.length || disc>0 || dep>0 || rate>0){
     currentY += 9;
     const sw=76, sx=pw-M-sw;
     const srows=[['Subtotal', pdfMoney(sub)]];
@@ -808,7 +973,7 @@ function buildPDF(){
 
   /* ---- footer · payment details (left) · terms (right) · note (left-bottom) ---- */
   const noteLines = invNote ? doc.splitTextToSize(invNote, pw/2 - M - 8) : [];
-  const pay=[['Bank',v('pBank')],['Account',v('pAcct')],
+  const pay=[['Bank',v('pBank')],['Account Name',v('pAcctName')],['Account',v('pAcct')],
              ['IBAN / SWIFT',v('pIban')],['Link',v('pLink')]].filter(([,x])=>x);
   const rightF=[];
   if (terms) rightF.push(terms);
@@ -819,10 +984,9 @@ function buildPDF(){
     const leftH = payBlockH + noteBlockH;
     const rightH = rightF.length * 4.8;
     const blockH = 6 + Math.max(leftH, rightH) + 2;
-    let fy; const want = ph-14-blockH;
-    if      (want >= currentY+12)                     fy = want;
-    else if (currentY+12+blockH <= ph-12)             fy = currentY+12;
-    else { doc.addPage();                      fy = 22; }
+    const FOOTER_BOTTOM = ph - 20;
+    let fy = FOOTER_BOTTOM - blockH;
+    if (fy < currentY + 12){ doc.addPage(); fy = FOOTER_BOTTOM - blockH; }
     doc.setDrawColor(...RULE); doc.setLineWidth(0.3); doc.line(M, fy-6, pw-M, fy-6);
 
     if (pay.length){
@@ -866,7 +1030,7 @@ function buildPDF(){
   if (pages>1) for (let i=1;i<=pages;i++){
     doc.setPage(i);
     doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...FAINT);
-    doc.text('Page '+i+' of '+pages, pw-M, ph-8, {align:'right'});
+    doc.text('Page '+i+' of '+pages, pw-M, ph-20, {align:'right'});
   }
 
   return doc;
