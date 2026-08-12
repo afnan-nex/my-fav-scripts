@@ -49,3 +49,11 @@ whatsapp-cli-windows-amd64.exe send --to 923463655864@s.whatsapp.net --message "
   }
 }}%%
 ```
+
+### web scraping
+```cmd
+pip install "crawlee[all]"
+playwright install
+pip install crawlee playwright
+playwright install
+```
