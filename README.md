@@ -57,3 +57,18 @@ playwright install
 pip install crawlee playwright
 playwright install
 ```
+
+### Modern android stack
+| Layer               | Technology                      |
+| ------------------- | ------------------------------- |
+| **UI**              | Jetpack Compose + Material3     |
+| **Architecture**    | MVVM + Repository pattern       |
+| **DI**              | Hilt                            |
+| **Database**        | Room                            |
+| **Preferences**     | DataStore                       |
+| **Async**           | Kotlin Coroutines + Flow        |
+| **Navigation**      | Navigation Compose              |
+| **Background Work** | WorkManager                     |
+| **Permissions**     | Accompanist Permissions         |
+| **Charts**          | MPAndroidChart / Compose Charts |
+
