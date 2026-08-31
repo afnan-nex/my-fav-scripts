@@ -10,17 +10,18 @@
    - [Linux (Arch, Ubuntu/Debian, Fedora)](#a-linux-best-performance-via-kvm)
    - [Windows (10 / 11 via WHPX)](#b-windows-10--11-using-whpx)
    - [macOS (Apple Silicon & Intel via UTM)](#c-macos-apple-silicon-m-series--intel)
-4. [How to Create and Run Virtual Machines](#4-how-to-create-and-run-virtual-machines)
+4. [Configuring Virt-Manager (User Session vs System)](#4-configuring-virt-manager-user-session-vs-system)
+5. [How to Create and Run Virtual Machines](#5-how-to-create-and-run-virtual-machines)
    - [Method 1: GUI (Virt-Manager)](#method-1-using-virt-manager-gui-recommended-on-linux)
-   - [Method 2: Command-Line (CLI)](#method-2-command-line-cli-with-virt-install)
-5. [Enabling Shared Clipboard & File Transfers](#5-enabling-shared-clipboard--file-transfers)
+   - [Method 2: Command-Line (CLI with virt-install)](#method-2-command-line-cli-with-virt-install)
+6. [Managing VM Lifecycle (Start, View, Restart, Shutdown)](#6-managing-vm-lifecycle-start-view-restart-shutdown)
+7. [Enabling Shared Clipboard & File Transfers](#7-enabling-shared-clipboard--file-transfers)
    - [Clipboard & Auto-Resize (SPICE Guest Tools)](#1-clipboard--auto-resize-spice-guest-tools)
    - [Sharing Full Folders & Directories (Samba Drive Z:\)](#2-sharing-full-folders--directories-samba-mapped-drive)
-6. [How to Change VM Configurations](#6-how-to-change-vm-configurations)
+8. [How to Change VM Configurations](#8-how-to-change-vm-configurations)
    - [Adjusting RAM & CPU Cores](#1-adjusting-ram--cpu-cores)
    - [Expanding Disk Space](#2-expanding-disk-space)
-   - [Changing Boot Order & CD-ROMs](#3-changing-boot-order--ejecting-isos)
-7. [Troubleshooting & Gotchas](#7-troubleshooting--common-gotchas)
+9. [Troubleshooting & Common Gotchas](#9-troubleshooting--common-gotchas)
 
 ---
 
@@ -46,6 +47,8 @@ When paired with your operating system's native hardware hypervisor, it runs vir
    * Always choose the `qcow2` format over raw images. A 50 GB `qcow2` disk only takes ~200 KB initially and dynamically grows only as you write data inside the guest OS.
 4. **Storage Bus for Windows Guests:**
    * Use **SATA bus** for the virtual disk during initial Windows install so Windows natively detects the drive without needing third-party drivers.
+5. **Closing the Window vs Shutting Down the VM:**
+   * Closing the `virt-viewer` display window does **NOT** turn off the VM. The VM continues running in the background. You must gracefully shut it down from inside the guest OS or via `virt-manager` / `virsh`.
 
 ---
 
@@ -137,7 +140,26 @@ brew install qemu
 
 ---
 
-## 4. How to Create and Run Virtual Machines
+## 4. Configuring Virt-Manager (User Session vs System)
+
+By default, Virt-Manager only connects to the system-wide daemon (`qemu:///system`). However, VMs stored in user home folders or mounted secondary drives (e.g. NTFS SSDs) are best run under the **User Session** (`qemu:///session`) to avoid root permission conflicts.
+
+### Ensure Virt-Manager Shows Both User & System VMs:
+
+**Command-Line (Instant One-Liner):**
+```bash
+dconf write /org/virt-manager/virt-manager/connections/uris "['qemu:///session', 'qemu:///system']" && dconf write /org/virt-manager/virt-manager/connections/autoconnect "['qemu:///session', 'qemu:///system']"
+```
+
+**Inside the Virt-Manager GUI:**
+1. Click **File** -> **Add Connection...**
+2. In the **Hypervisor** dropdown, select **QEMU/KVM User session**.
+3. Check the **Autoconnect** box.
+4. Click **Connect**. Both `QEMU/KVM` and `QEMU/KVM User session` will now remain visible permanently.
+
+---
+
+## 5. How to Create and Run Virtual Machines
 
 ### Method 1: Using Virt-Manager GUI (Recommended on Linux)
 
@@ -160,7 +182,7 @@ virt-manager
 
 ---
 
-### Method 2: Command-Line (CLI) with `virt-install`
+### Method 2: Command-Line (CLI with virt-install)
 
 #### Step 1: Create a 40 GB dynamic disk image on your SSD:
 ```bash
@@ -184,12 +206,42 @@ virt-install --connect qemu:///session \
 
 #### Step 3: Open the graphical display window:
 ```bash
-virt-viewer --connect qemu:///session win10-vm
+virt-viewer --connect qemu:///session win10-vm &
 ```
 
 ---
 
-## 5. Enabling Shared Clipboard & File Transfers
+## 6. Managing VM Lifecycle (Start, View, Restart, Shutdown)
+
+### 1. View / Reconnect to a Running VM Display
+If you closed the window while the VM was running:
+```bash
+virt-viewer --connect qemu:///session win10-vm &
+```
+
+### 2. Turn On a Powered-Off VM
+```bash
+virsh --connect qemu:///session start win10-vm && virt-viewer --connect qemu:///session win10-vm &
+```
+
+### 3. Gracefully Shut Down the VM
+```bash
+virsh --connect qemu:///session shutdown win10-vm
+```
+
+### 4. Force Reset / Reboot the VM
+```bash
+virsh --connect qemu:///session reset win10-vm
+```
+
+### 5. Force Power Off (Kill VM)
+```bash
+virsh --connect qemu:///session destroy win10-vm
+```
+
+---
+
+## 7. Enabling Shared Clipboard & File Transfers
 
 ### 1. Clipboard & Auto-Resize (SPICE Guest Tools)
 
@@ -233,14 +285,14 @@ mkdir -p ~/VM_Shared
 
 [VM_Shared]
    comment = Shared Directory for VM
-   path = /home/mas/VM_Shared
+   path = /home/username/VM_Shared
    read only = no
    browsable = yes
    guest ok = yes
    writable = yes
    create mask = 0777
    directory mask = 0777
-   force user = mas
+   force user = username
 ```
 
 4. Set a Samba password and start the service:
@@ -260,7 +312,7 @@ mkdir -p ~/VM_Shared
 
 ---
 
-## 6. How to Change VM Configurations
+## 8. How to Change VM Configurations
 
 Always shut down the VM before modifying core hardware settings.
 
@@ -290,27 +342,17 @@ qemu-img resize "/path/to/vm_storage/windows10.qcow2" +20G
 ```
 *After resizing, boot Windows, open **Disk Management** (`diskmgmt.msc`), right-click your `C:` partition, and click **Extend Volume**.*
 
-#### 3. Starting and Stopping VMs via CLI
-```bash
-# Start VM
-virsh --connect qemu:///session start win10-vm
-
-# Gracefully shut down VM
-virsh --connect qemu:///session shutdown win10-vm
-
-# Force power off VM
-virsh --connect qemu:///session destroy win10-vm
-```
-
 ---
 
-## 7. Troubleshooting & Common Gotchas
+## 9. Troubleshooting & Common Gotchas
 
 | Issue | Cause | Fix |
 | :--- | :--- | :--- |
+| **Virt-Manager shows an empty list / VM doesn't appear** | Virt-Manager defaulted to `qemu:///system` while VM is in `qemu:///session` | In Virt-Manager, click **File** -> **Add Connection** -> choose **QEMU/KVM User session**, or run the `dconf` one-liner in Section 4. |
+| **Closing the window does not stop the VM** | `virt-viewer` is only a display viewer, not the VM engine | Reconnect with `virt-viewer micro10 &`, or shut it down cleanly via `virsh shutdown` or from inside Windows. |
 | **`Could not access KVM kernel module: /dev/kvm`** | Hardware virtualization disabled in BIOS or missing user group permissions | Enable VT-x / AMD-V in BIOS. Run `sudo usermod -aG kvm $USER` and reboot or re-login. |
 | **Windows installer shows "No drives were found"** | Windows installer lacks VirtIO storage drivers | Set the virtual disk bus to `sata` instead of `virtio`. |
 | **`ModuleNotFoundError: No module named 'gi'`** | Python version manager (mise/pyenv/conda) shadowing system Python | Create wrapper in `~/.local/bin/virt-manager` pointing to `/usr/bin/python3`. |
 | **Resolution stuck at 800x600 & sluggish mouse** | Missing SPICE display drivers | Install `spice-guest-tools-latest.exe` inside Windows and reboot. |
-| **Cannot drag entire folders/directories into VM** | SPICE drag-and-drop only supports individual files | Use the Samba Mapped Drive (`\\10.0.2.2\VM_Shared`) or zip the folder before dragging. |
+| **Cannot drag entire folders/directories into VM** | SPICE drag-and-drop only handles single files | Use the Samba Mapped Drive (`\\10.0.2.2\VM_Shared`) or zip the folder before dragging. |
 | **VM is extremely slow and freezing** | VM disk placed on mechanical HDD or only 1 CPU allocated | Relocate virtual disk to an SSD partition and allocate at least 2 vCPUs. |
