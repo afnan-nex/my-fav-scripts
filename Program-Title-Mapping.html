@@ -36,14 +36,37 @@
   header {
     background: #027439;
     color: white;
-    padding: 18px 20px;
-    text-align: center;
+    padding: 16px 20px;
     box-shadow: var(--shadow-sm);
   }
+  .header-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
   header h1 {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: -0.01em;
+  }
+  .header-socials {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-socials a {
+    color: rgba(255, 255, 255, 0.85);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .header-socials a:hover {
+    color: #ffffff;
+    transform: scale(1.15);
   }
 
   /* Main Container */
@@ -95,37 +118,108 @@
   .preview-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    width: 100%;
   }
+
+  /* View mode toggle for mobile screens */
+  .mobile-controls {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .mobile-hint {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+  .view-toggle {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 2px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+  }
+  .view-toggle-btn {
+    border: none;
+    background: transparent;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #475569;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .view-toggle-btn.active {
+    background: #027439;
+    color: #ffffff;
+  }
+
   .canvas-container {
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     padding: 12px;
     box-shadow: var(--shadow-sm);
-    max-width: 100%;
+    width: 100%;
     overflow-x: auto;
-    display: flex;
-    justify-content: center;
+    -webkit-overflow-scrolling: touch;
+    text-align: center;
   }
   canvas {
-    display: block;
+    display: inline-block;
+    vertical-align: middle;
+    width: 635px;
     max-width: 100%;
     height: auto;
+    aspect-ratio: 635 / 332;
+  }
+
+  @media (max-width: 680px) {
+    .container {
+      padding: 0 10px;
+      margin: 14px auto;
+    }
+    .card {
+      padding: 12px;
+    }
+    .mobile-controls {
+      display: flex;
+    }
+    .canvas-container {
+      padding: 8px;
+      text-align: left;
+    }
+    /* By default on phone: maintain full 635px width so text is crystal clear and never shrunken */
+    canvas {
+      width: 635px !important;
+      min-width: 635px !important;
+      max-width: none !important;
+      height: 332px !important;
+    }
+    /* When Fit Screen mode is clicked */
+    .canvas-container.fit-mode canvas {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 635 / 332 !important;
+    }
   }
 
   /* Action Buttons */
   .action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    display: flex;
+    justify-content: center;
     margin-top: 16px;
     width: 100%;
   }
-  @media (max-width: 480px) {
-    .action-buttons {
-      grid-template-columns: 1fr;
-    }
+  .action-buttons .btn {
+    width: 100%;
+    max-width: 320px;
   }
   .btn {
     display: inline-flex;
@@ -232,7 +326,21 @@
 
 <!-- Header -->
 <header>
-  <h1>Program title Mapping</h1>
+  <div class="header-inner">
+    <h1>Program title Mapping</h1>
+    <div class="header-socials">
+      <a href="https://github.com/afnan-nex" target="_blank" rel="noopener noreferrer" title="GitHub: afnan-nex" aria-label="GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+      </a>
+      <a href="https://instagram.com/afnan_nex" target="_blank" rel="noopener noreferrer" title="Instagram: @afnan_nex" aria-label="Instagram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+      </a>
+    </div>
+  </div>
 </header>
 
 <div class="container">
@@ -248,19 +356,23 @@
   <!-- Generated Picture Card -->
   <div class="card">
     <div class="preview-wrapper">
+      <div class="mobile-controls">
+        <span class="mobile-hint">Swipe to view full form &rarr;</span>
+        <div class="view-toggle">
+          <button type="button" id="viewFullBtn" class="view-toggle-btn active">Full View</button>
+          <button type="button" id="viewFitBtn" class="view-toggle-btn">Fit Screen</button>
+        </div>
+      </div>
+
       <div class="canvas-container">
         <!-- Canvas width 635px gives ample room for all long faculty & department names -->
         <canvas id="portalCanvas" width="635" height="332"></canvas>
       </div>
 
       <div class="action-buttons">
-        <button id="copyImageBtn" class="btn btn-primary" title="Copy to clipboard - Press Ctrl+V in WhatsApp">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-          📋 Copy Image (Ctrl+V)
-        </button>
-        <button id="downloadImageBtn" class="btn btn-secondary">
+        <button id="downloadImageBtn" class="btn btn-primary">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          💾 Download PNG
+          Download PNG
         </button>
       </div>
     </div>
@@ -491,7 +603,6 @@ let currentProgram = DEGREE_DATA[17]; // default to BS Computer Science
 const degreeSelect = document.getElementById("degreeSelect");
 const canvas = document.getElementById("portalCanvas");
 const ctx = canvas.getContext("2d");
-const copyImageBtn = document.getElementById("copyImageBtn");
 const downloadImageBtn = document.getElementById("downloadImageBtn");
 const masterTableBody = document.getElementById("masterTableBody");
 const copyToast = document.getElementById("copyToast");
@@ -567,8 +678,6 @@ function renderPicture(dpr = 2) {
 
   canvas.width = baseW * dpr;
   canvas.height = baseH * dpr;
-  canvas.style.width = baseW + "px";
-  canvas.style.height = baseH + "px";
 
   ctx.save();
   ctx.scale(dpr, dpr);
@@ -674,30 +783,6 @@ degreeSelect.addEventListener("change", (e) => {
   selectProgramById(parseInt(e.target.value));
 });
 
-// Copy Image to Clipboard
-copyImageBtn.addEventListener("click", async () => {
-  try {
-    canvas.toBlob(async (blob) => {
-      if (!blob) {
-        showToast("Error generating image.");
-        return;
-      }
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({ "image/png": blob })
-        ]);
-        showToast("✅ Image copied! Press Ctrl+V directly into WhatsApp.");
-      } catch (err) {
-        console.warn("ClipboardItem write failed, downloading instead...", err);
-        downloadImageBtn.click();
-        showToast("Downloaded PNG (Clipboard requires HTTPS / secure context).");
-      }
-    }, "image/png");
-  } catch (err) {
-    downloadImageBtn.click();
-  }
-});
-
 // Download PNG Image
 downloadImageBtn.addEventListener("click", () => {
   const safeName = currentProgram.degree_title.replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -705,8 +790,29 @@ downloadImageBtn.addEventListener("click", () => {
   link.download = `Honhaar_UET_Taxila_${safeName}.png`;
   link.href = canvas.toDataURL("image/png");
   link.click();
-  showToast(`✅ Downloaded: Honhaar_UET_Taxila_${safeName}.png`);
+  showToast(`Downloaded: Honhaar_UET_Taxila_${safeName}.png`);
 });
+
+// Mobile View Mode Toggle
+const viewFullBtn = document.getElementById("viewFullBtn");
+const viewFitBtn = document.getElementById("viewFitBtn");
+const canvasContainer = document.querySelector(".canvas-container");
+const mobileHint = document.querySelector(".mobile-hint");
+
+if (viewFullBtn && viewFitBtn) {
+  viewFullBtn.addEventListener("click", () => {
+    canvasContainer.classList.remove("fit-mode");
+    viewFullBtn.classList.add("active");
+    viewFitBtn.classList.remove("active");
+    if (mobileHint) mobileHint.style.display = "inline";
+  });
+  viewFitBtn.addEventListener("click", () => {
+    canvasContainer.classList.add("fit-mode");
+    viewFitBtn.classList.add("active");
+    viewFullBtn.classList.remove("active");
+    if (mobileHint) mobileHint.style.display = "none";
+  });
+}
 
 // Initialize on Load
 function init() {
