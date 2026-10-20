@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Program title Mapping</title>
+<style>
+  :root {
+    --primary: #027439;
+    --primary-dark: #015429;
+    --primary-light: #e8f5ee;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding-bottom: 60px;
+  }
+
+  /* Header */
+  header {
+    background: #027439;
+    color: white;
+    padding: 18px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+  }
+  header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Main Container */
+  .container {
+    max-width: 720px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* Form Select */
+  .form-group {
+    margin-bottom: 0;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+  .custom-select {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1rem;
+    color: var(--text-main);
+    background-color: #fff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .custom-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(2, 116, 57, 0.15);
+  }
+
+  /* Preview Wrapper */
+  .preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .canvas-container {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: var(--shadow-sm);
+    max-width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+  }
+  canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Action Buttons */
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+    width: 100%;
+  }
+  @media (max-width: 480px) {
+    .action-buttons {
+      grid-template-columns: 1fr;
+    }
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background-color: var(--primary);
+    color: #ffffff;
+  }
+  .btn-primary:hover {
+    background-color: var(--primary-dark);
+  }
+  .btn-secondary {
+    background-color: #0284c7;
+    color: #ffffff;
+  }
+  .btn-secondary:hover {
+    background-color: #0369a1;
+  }
+  .btn-outline {
+    background-color: #ffffff;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    grid-column: 1 / -1;
+  }
+  .btn-outline:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+  }
+
+  /* Copy Toast Notification */
+  .copy-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1e293b;
+    color: #ffffff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+    animation: fadeIn 0.2s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Optional collapsible reference */
+  details summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: center;
+    padding: 8px;
+    user-select: none;
+  }
+  details summary:hover {
+    color: var(--primary);
+  }
+  .table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: left;
+    background: #fff;
+  }
+  th, td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  th {
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 600;
+  }
+  tr:hover td {
+    background-color: #f8fafc;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <h1>Program title Mapping</h1>
+</header>
+
+<div class="container">
+
+  <!-- Selection Card -->
+  <div class="card">
+    <div class="form-group">
+      <label for="degreeSelect">Degree / Program Title</label>
+      <select id="degreeSelect" class="custom-select"></select>
+    </div>
+  </div>
+
+  <!-- Generated Picture Card -->
+  <div class="card">
+    <div class="preview-wrapper">
+      <div class="canvas-container">
+        <!-- Canvas width 635px gives ample room for all long faculty & department names -->
+        <canvas id="portalCanvas" width="635" height="332"></canvas>
+      </div>
+
+      <div class="action-buttons">
+        <button id="copyImageBtn" class="btn btn-primary" title="Copy to clipboard - Press Ctrl+V in WhatsApp">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          📋 Copy Image (Ctrl+V)
+        </button>
+        <button id="downloadImageBtn" class="btn btn-secondary">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          💾 Download PNG
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapsible master list reference -->
+  <details>
+    <summary>View Complete Master Mapping Table (23 Programs)</summary>
+    <div class="table-container">
+      <table id="masterTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Degree / Program Title</th>
+            <th>Faculty</th>
+            <th>Department</th>
+            <th>Discipline</th>
+          </tr>
+        </thead>
+        <tbody id="masterTableBody"></tbody>
+      </table>
+    </div>
+  </details>
+
+</div>
+
+<!-- Copy Toast Notification -->
+<div id="copyToast" class="copy-toast">
+  <svg width="18" height="18" fill="none" stroke="#4ade80" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+  <span id="toastMsg">Image copied to clipboard! Ready to paste (Ctrl+V).</span>
+</div>
+
+<script>
+/**
+ * Master Data extracted from "Updated Degree Titles from UET Taxila as per Honhaar portal .xlsx"
+ */
+const DEGREE_DATA = [
+  {
+    id: 1,
+    campus: "Main Campus",
+    faculty: "Faculty of  Electronics and Electrical  Engineering",
+    department: "Department of Bio-Medical Engineering and Technology",
+    discipline: "Biotechnology",
+    degree_title: "BS Biomedical Engineering Technology"
+  },
+  {
+    id: 2,
+    campus: "Main Campus",
+    faculty: "Faculty of  Electronics and Electrical  Engineering",
+    department: "Department of Electrical Engineering",
+    discipline: "Electrical Technology",
+    degree_title: "BS Electrical Engineering Technology"
+  },
+  {
+    id: 3,
+    campus: "Main Campus",
+    faculty: "Faculty of  Electronics and Electrical  Engineering",
+    department: "Department of Electronics Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Electronics Engineering"
+  },
+  {
+    id: 4,
+    campus: "Main Campus",
+    faculty: "Faculty of  Electronics and Electrical  Engineering",
+    department: "Department of Electrical Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Electrical Engineering"
+  },
+  {
+    id: 5,
+    campus: "Main Campus",
+    faculty: "Faculty of Basic Sciences and Humanities",
+    department: "Department of Physical Sciences",
+    discipline: "Physics",
+    degree_title: "BS Physics"
+  },
+  {
+    id: 6,
+    campus: "Main Campus",
+    faculty: "Faculty of Basic Sciences and Humanities",
+    department: "Department of Mathematical Sciences",
+    discipline: "Mathematics",
+    degree_title: "BS Mathematics"
+  },
+  {
+    id: 7,
+    campus: "Main Campus",
+    faculty: "Faculty of Civil and Environmental Engineering",
+    department: "Department of Environmental Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Environmental Engineering"
+  },
+  {
+    id: 8,
+    campus: "Main Campus",
+    faculty: "Faculty of Civil and Environmental Engineering",
+    department: "Department of Civil Engineering",
+    discipline: "Civil Technology",
+    degree_title: "BS Civil Engineering Technology"
+  },
+  {
+    id: 9,
+    campus: "Main Campus",
+    faculty: "Faculty of Civil and Environmental Engineering",
+    department: "Department of Civil Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Civil Engineering"
+  },
+  {
+    id: 10,
+    campus: "Main Campus",
+    faculty: "Faculty of Industrial Engineering",
+    department: "Department of Industrial Engineering",
+    discipline: "Innovation and Entrepreneurship",
+    degree_title: "BS Manufacturing Engineering Technology"
+  },
+  {
+    id: 11,
+    campus: "Main Campus",
+    faculty: "Faculty of Industrial Engineering",
+    department: "Department of Industrial Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Industrial & Manufacturing Engineering"
+  },
+  {
+    id: 12,
+    campus: "Main Campus",
+    faculty: "Faculty of Mechanical and Aeronautical Engineering",
+    department: "Department of Mechatronics Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Mechatronics Engineering"
+  },
+  {
+    id: 13,
+    campus: "Main Campus",
+    faculty: "Faculty of Mechanical and Aeronautical Engineering",
+    department: "Department of Mechanical Engineering",
+    discipline: "Mechanical Technology",
+    degree_title: "BS Mechanical Engineering Technology"
+  },
+  {
+    id: 14,
+    campus: "Main Campus",
+    faculty: "Faculty of Mechanical and Aeronautical Engineering",
+    department: "Department of Mechanical Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Mechanical Engineering"
+  },
+  {
+    id: 15,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Telecommunication Engineering",
+    discipline: "Artificial Intelligence/Computer Science",
+    degree_title: "BS Information Engineering Technology"
+  },
+  {
+    id: 16,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Telecommunication Engineering",
+    discipline: "Artificial Intelligence/Computer Science",
+    degree_title: "BS Software Engineering Technology"
+  },
+  {
+    id: 17,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Telecommunication Engineering",
+    discipline: "Cyber Security",
+    degree_title: "BS Cyber Security Engineering Technology"
+  },
+  {
+    id: 18,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Computer Science",
+    discipline: "Artificial Intelligence/Computer Science",
+    degree_title: "BS Computer Science"
+  },
+  {
+    id: 19,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Telecommunication Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Telecommunication Engineering"
+  },
+  {
+    id: 20,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Software Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Software Engineering"
+  },
+  {
+    id: 21,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Computer Engineering",
+    discipline: "Engineering Programs",
+    degree_title: "BSc in Computer Engineering"
+  },
+  {
+    id: 22,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Computer Engineering",
+    discipline: "Robotics",
+    degree_title: "BS Robotics & AI"
+  },
+  {
+    id: 23,
+    campus: "Main Campus",
+    faculty: "Faculty of Telecommunication and Information Engineering",
+    department: "Department of Computer Engineering",
+    discipline: "Artificial Intelligence/Computer Science",
+    degree_title: "BS AI Engineering Technology"
+  }
+];
+
+// App State
+let currentProgram = DEGREE_DATA[17]; // default to BS Computer Science
+
+// DOM Elements
+const degreeSelect = document.getElementById("degreeSelect");
+const canvas = document.getElementById("portalCanvas");
+const ctx = canvas.getContext("2d");
+const copyImageBtn = document.getElementById("copyImageBtn");
+const downloadImageBtn = document.getElementById("downloadImageBtn");
+const masterTableBody = document.getElementById("masterTableBody");
+const copyToast = document.getElementById("copyToast");
+const toastMsg = document.getElementById("toastMsg");
+
+// Helper to show Toast
+function showToast(text) {
+  toastMsg.textContent = text;
+  copyToast.style.display = "flex";
+  setTimeout(() => {
+    copyToast.style.display = "none";
+  }, 2500);
+}
+
+// Populate Degree Select Dropdown
+function populateDropdown() {
+  degreeSelect.innerHTML = "";
+  DEGREE_DATA.forEach(deg => {
+    const opt = document.createElement("option");
+    opt.value = deg.id;
+    opt.textContent = `${deg.id}. ${deg.degree_title}`;
+    if (deg.id === currentProgram.id) opt.selected = true;
+    degreeSelect.appendChild(opt);
+  });
+}
+
+// Populate Table
+function renderMasterTable() {
+  masterTableBody.innerHTML = "";
+  DEGREE_DATA.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.style.cursor = "pointer";
+    tr.innerHTML = `
+      <td style="font-weight: 700; color: #64748b;">${item.id}</td>
+      <td style="font-weight: 600; color: #027439;">${item.degree_title}</td>
+      <td>${item.faculty}</td>
+      <td>${item.department}</td>
+      <td style="font-weight: 600; color: #b45309;">${item.discipline}</td>
+    `;
+    tr.addEventListener("click", () => {
+      selectProgramById(item.id);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    masterTableBody.appendChild(tr);
+  });
+}
+
+/**
+ * Polyfill for roundRect on canvas
+ */
+function drawRoundedRect(c, x, y, width, height, radius, fill, stroke) {
+  c.beginPath();
+  c.moveTo(x + radius, y);
+  c.lineTo(x + width - radius, y);
+  c.quadraticCurveTo(x + width, y, x + width, y + radius);
+  c.lineTo(x + width, y + height - radius);
+  c.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  c.lineTo(x + radius, y + height);
+  c.quadraticCurveTo(x, y + height, x, y + height - radius);
+  c.lineTo(x, y + radius);
+  c.quadraticCurveTo(x, y, x + radius, y);
+  c.closePath();
+  if (fill) c.fill();
+  if (stroke) c.stroke();
+}
+
+/**
+ * Canvas Renderer: Increased Width for Perfect Fit (635 × 332)
+ */
+function renderPicture(dpr = 2) {
+  const baseW = 635;
+  const baseH = 332;
+
+  canvas.width = baseW * dpr;
+  canvas.height = baseH * dpr;
+  canvas.style.width = baseW + "px";
+  canvas.style.height = baseH + "px";
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
+
+  // Background
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, baseW, baseH);
+
+  // Field definitions matching screenshot
+  const rows = [
+    { label: "Subcampus", val: currentProgram.campus, isSelect: true, placeholder: false },
+    { label: "Faculty", val: currentProgram.faculty, isSelect: true, placeholder: false },
+    { label: "Department", val: currentProgram.department, isSelect: true, placeholder: false },
+    { label: "Date of Admission", val: "", isSelect: false, placeholder: false },
+    { label: "Student Registration #", val: "University/College Registration Number", isSelect: false, placeholder: true },
+    { label: "Program Discipline", val: currentProgram.discipline, isSelect: true, placeholder: false },
+    { label: "Degree Title", val: currentProgram.degree_title, isSelect: true, placeholder: false }
+  ];
+
+  const boxX = 181;
+  const boxW = 430; // Expanded width so long department and faculty names fit easily
+  const boxH = 36;
+  const startY = 2;
+  const rowPitch = 48;
+  const radius = 8;
+
+  const fontFam = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+
+  rows.forEach((row, i) => {
+    const boxY = startY + i * rowPitch;
+    const labelY = boxY + boxH / 2;
+
+    // 1. Draw Label
+    ctx.font = `400 14px ${fontFam}`;
+    ctx.fillStyle = "#333333";
+    ctx.textBaseline = "middle";
+    ctx.fillText(row.label, 15, labelY);
+
+    const labelW = ctx.measureText(row.label).width;
+
+    // Red Asterisk
+    ctx.fillStyle = "#ff0000";
+    ctx.fillText("*", 15 + labelW + 4, labelY);
+
+    // 2. Draw Rounded Box
+    ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "#e5e5e5";
+    ctx.lineWidth = 1;
+    drawRoundedRect(ctx, boxX, boxY, boxW, boxH, radius, true, true);
+
+    // 3. Draw Dropdown Arrow if select box
+    if (row.isSelect) {
+      const arrowX = boxX + boxW - 18;
+      const arrowY = boxY + 16;
+      ctx.beginPath();
+      ctx.moveTo(arrowX - 4, arrowY);
+      ctx.lineTo(arrowX + 4, arrowY);
+      ctx.lineTo(arrowX, arrowY + 4.5);
+      ctx.closePath();
+      ctx.fillStyle = "#707070";
+      ctx.fill();
+    }
+
+    // 4. Draw Input Text
+    if (row.val) {
+      ctx.fillStyle = row.placeholder ? "#757575" : "#333333";
+
+      const maxTextW = row.isSelect ? (boxW - 36) : (boxW - 20);
+      let fontSize = 13.5;
+      ctx.font = `400 ${fontSize}px ${fontFam}`;
+
+      // Safety fit (if text ever exceeds available space, gently scale down)
+      while (fontSize > 10 && ctx.measureText(row.val).width > maxTextW) {
+        fontSize -= 0.5;
+        ctx.font = `400 ${fontSize}px ${fontFam}`;
+      }
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(boxX + 2, boxY + 2, maxTextW + 8, boxH - 4);
+      ctx.clip();
+
+      ctx.fillText(row.val, boxX + 12, labelY);
+      ctx.restore();
+    }
+  });
+
+  ctx.restore();
+}
+
+// Select Program Function
+function selectProgramById(id) {
+  const prog = DEGREE_DATA.find(d => d.id === id);
+  if (prog) {
+    currentProgram = prog;
+    degreeSelect.value = prog.id;
+    renderPicture();
+  }
+}
+
+// Event Listener for Dropdown Change
+degreeSelect.addEventListener("change", (e) => {
+  selectProgramById(parseInt(e.target.value));
+});
+
+// Copy Image to Clipboard
+copyImageBtn.addEventListener("click", async () => {
+  try {
+    canvas.toBlob(async (blob) => {
+      if (!blob) {
+        showToast("Error generating image.");
+        return;
+      }
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": blob })
+        ]);
+        showToast("✅ Image copied! Press Ctrl+V directly into WhatsApp.");
+      } catch (err) {
+        console.warn("ClipboardItem write failed, downloading instead...", err);
+        downloadImageBtn.click();
+        showToast("Downloaded PNG (Clipboard requires HTTPS / secure context).");
+      }
+    }, "image/png");
+  } catch (err) {
+    downloadImageBtn.click();
+  }
+});
+
+// Download PNG Image
+downloadImageBtn.addEventListener("click", () => {
+  const safeName = currentProgram.degree_title.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const link = document.createElement("a");
+  link.download = `Honhaar_UET_Taxila_${safeName}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+  showToast(`✅ Downloaded: Honhaar_UET_Taxila_${safeName}.png`);
+});
+
+// Initialize on Load
+function init() {
+  populateDropdown();
+  renderMasterTable();
+  renderPicture();
+}
+
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
